@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arbitraje Binance - Flujos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem; 
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #f8fafc; 
+        }
+
+        /* --- Animación de Ondas (Tonos Amarillos/Binance sutiles) --- */
+        .ps-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1; 
+        }
+
+        .wave {
+            position: absolute;
+            width: 150vw;
+            height: 150vw;
+            border-radius: 43% 47% 40% 45%; 
+            animation: drift 25s infinite linear;
+            opacity: 0.4;
+        }
+
+        .wave.-one { background: #fef3c7; top: 40vh; left: -25vw; animation-duration: 30s; }
+        .wave.-two { background: #ffffff; top: 45vh; left: -20vw; animation-duration: 35s; opacity: 0.8; box-shadow: 0 0 40px rgba(0,0,0,0.02); }
+        .wave.-three { background: #fef08a; top: 50vh; left: -30vw; animation-duration: 40s; opacity: 0.5; }
+
+        @keyframes drift { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- Cabecera y Tarjeta Principal --- */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            z-index: 1; 
+        }
+        
+        .header h1 {
+            color: #1a365d;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+
+        .btn-volver {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #d97706; /* Tono dorado/naranja */
+            text-decoration: none;
+            font-weight: bold;
+            background: rgba(255,255,255,0.8);
+            padding: 8px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+
+        .btn-volver:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); 
+            width: 100%;
+            max-width: 950px;
+            z-index: 1;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Panel de Control (Calculadora) --- */
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 2rem;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4a5568;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2d3748;
+            background: #ffffff;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+
+        .tasas-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .tasa-item {
+            text-align: center;
+        }
+
+        .tasa-item span { display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; }
+        .tasa-item strong { font-size: 1.2rem; color: #b45309; }
+
+        /* --- Flujograma Horizontal --- */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .flow-row.best-route {
+            border: 2px solid #10b981;
+            background: #f0fdf4;
+        }
+
+        .best-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #10b981;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-bottom-left-radius: 10px;
+            text-transform: uppercase;
+            display: none;
+        }
+
+        .flow-row.best-route .best-badge { display: block; }
+
+        /* Nodos */
+        .node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e0;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .node-title { font-weight: 800; font-size: 1rem; color: #1a365d; }
+        .node-amount { font-size: 1.1rem; color: #2d3748; font-weight: bold; margin-top: 5px; }
+        .node-sub { font-size: 0.75rem; color: #718096; margin-top: 2px; }
+
+        .node-final {
+            background: #fffbeb;
+            border-color: #fcd34d;
+        }
+        .node-final .node-title { color: #b45309; }
+        .node-final .node-amount { font-size: 1.3rem; color: #92400e; }
+
+        /* Flechas Conectoras Horizontales */
+        .flow-arrow-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-width: 80px;
+            padding: 0 10px;
+        }
+
+        .flow-arrow-line {
+            width: 100%;
+            height: 2px;
+            background: #cbd5e0;
+            position: relative;
+        }
+
+        .flow-arrow-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid #cbd5e0;
+        }
+
+        .flow-arrow-text {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #4a5568;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            position: absolute;
+            top: -20px;
+            white-space: nowrap;
+        }
+        
+        .flow-arrow-text.down {
+            top: auto;
+            bottom: -20px;
+            color: #e53e3e;
+        }
+
+        /* Disclaimer de Hipótesis */
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 1.5rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 900px) {
+            .flow-row { flex-direction: column; gap: 30px; padding: 30px 15px; }
+            .flow-arrow-container { width: 2px; height: 40px; flex-grow: 0; }
+            .flow-arrow-line { width: 2px; height: 100%; }
+            .flow-arrow-line::after { top: auto; bottom: 0; right: -4px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid #cbd5e0; border-bottom: none; }
+            .flow-arrow-text { top: 50%; transform: translateY(-50%) translateX(25px); }
+            .flow-arrow-text.down { bottom: auto; top: 50%; transform: translateY(-50%) translateX(-25px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ps-waves">
+        <div class="wave -one"></div>
+        <div class="wave -two"></div>
+        <div class="wave -three"></div>
+    </div>
+
+    <div class="header">
+        <a href="index.html" class="btn-volver">← Volver al Hub</a>
+        <h1>Arbitraje & Flujos</h1>
+    </div>
+
+    <div class="card">
+        
+        <div class="control-panel">
+            <div class="input-group">
+                <label>Monto Recibido (Bs):</label>
+                <input type="number" id="input-bs" value="2500" oninput="calcularFlujos()">
+            </div>
+            
+            <div class="input-group">
+                <label>Comisión Banco (PM/Transf) %:</label>
+                <input type="number" id="input-com-banco" value="0.30" step="0.01" oninput="calcularFlujos()">
+            </div>
+
+            <div class="input-group">
+                <label>Comisión BPAY (Binance) %:</label>
+                <input type="number" id="input-com-bpay" value="1.50" step="0.01" oninput="calcularFlujos()">
+            </div>
+            
+            <div class="tasas-info">
+                <div class="tasa-item">
+                    <span>Tasa BCV (Referencial)</span>
+                    <strong id="tasa-bcv">...</strong>
+                </div>
+                <div class="tasa-item">
+                    <span>Tasa Base P2P/BPAY</span>
+                    <strong id="tasa-global">Cargando...</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-container" id="flow-container">
+            <!-- Renderizado por JS -->
+        </div>
+
+        <p class="disclaimer">
+            <strong>Nota de cálculo:</strong> Las tasas P2P y BCV se obtienen en tiempo real. Las comisiones bancarias y de BPAY están configuradas con valores asumidos por defecto (0.3% y 1.5% respectivamente). Puedes modificar estas casillas para que el cálculo se ajuste a la tarifa exacta de tu banco al momento de la operación.
+        </p>
+
+    </div>
+
+    <script>
+        let tasaBaseGlobal = 0;
+
+        async function inicializar() {
+            try {
+                const resBCV = await fetch('https://open.er-api.com/v6/latest/USD');
+                const dataBCV = await resBCV.json();
+                document.getElementById('tasa-bcv').innerText = dataBCV.rates.VES.toFixed(2);
+
+                const resBinance = await fetch('https://criptoya.com/api/binancep2p/usdt/ves');
+                const dataBinance = await resBinance.json();
+                tasaBaseGlobal = dataBinance.ask;
+                
+                document.getElementById('tasa-global').innerText = tasaBaseGlobal.toFixed(2);
+
+                calcularFlujos();
+            } catch (error) {
+                document.getElementById('tasa-global').innerText = "Error API";
+            }
+        }
+
+        function calcularFlujos() {
+            if (tasaBaseGlobal === 0) return;
+
+            const montoOriginal = parseFloat(document.getElementById('input-bs').value) || 0;
+            const comisionBancoPct = parseFloat(document.getElementById('input-com-banco').value) || 0;
+            const comisionBpayPct = parseFloat(document.getElementById('input-com-bpay').value) || 0;
+
+            let rutasCalculadas = [];
+
+            // 1. RUTAS ESTÁNDAR VÍA BPAY (Pago Móvil/Transferencia directa a Binance Fiat)
+            const bancosDirectos = [
+                { id: 'bdv', nombre: 'Bco. Venezuela', diferencialTasa: -0.05 },
+                { id: 'bnc', nombre: 'BNC', diferencialTasa: 0.10 },
+                { id: 'bancamiga', nombre: 'Bancamiga', diferencialTasa: 0.05 },
+                { id: 'banesco', nombre: 'Banesco', diferencialTasa: 0.15 }
+            ];
+
+            bancosDirectos.forEach(banco => {
+                let tasaAplicada = (tasaBaseGlobal + banco.diferencialTasa).toFixed(2);
+                
+                // Restamos la comisión del banco al monto en Bs
+                let descuentoBancoBs = montoOriginal * (comisionBancoPct / 100);
+                let montoNetoBs = montoOriginal - descuentoBancoBs;
+                
+                // Convertimos a USDT usando la tasa BPAY
+                let usdtBruto = montoNetoBs / parseFloat(tasaAplicada);
+                
+                // Restamos la comisión de Binance BPAY en USDT
+                let descuentoBpayUSDT = usdtBruto * (comisionBpayPct / 100);
+                let usdtFinal = usdtBruto - descuentoBpayUSDT;
+
+                rutasCalculadas.push({
+                    id: banco.id,
+                    usdtFinal: usdtFinal,
+                    html: `
+                        <div class="flow-row" id="row-${banco.id}">
+                            <div class="best-badge">🔥 Más Rentable</div>
+                            
+                            <div class="node">
+                                <span class="node-title">${banco.nombre}</span>
+                                <span class="node-amount">${montoOriginal.toLocaleString('es-VE')} Bs</span>
+                                <span class="node-sub">Inicio</span>
+                            </div>
+
+                            <div class="flow-arrow-container">
+                                <span class="flow-arrow-text down">-${comisionBancoPct}% Banco</span>
+                                <div class="flow-arrow-line"></div>
+                            </div>
+
+                            <div class="node">
+                                <span class="node-title">Red BPAY</span>
+                                <span class="node-amount">${montoNetoBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} Bs</span>
+                                <span class="node-sub">Tasa: ${tasaAplicada}</span>
+                            </div>
+
+                            <div class="flow-arrow-container">
+                                <span class="flow-arrow-text down">-${comisionBpayPct}% Binance</span>
+                                <div class="flow-arrow-line"></div>
+                            </div>
+
+                            <div class="node node-final">
+                                <span class="node-title">Binance USDT</span>
+                                <span class="node-amount">${usdtFinal.toFixed(2)} ₮</span>
+                                <span class="node-sub">Neto Recibido</span>
+                            </div>
+                        </div>
+                    `
+                });
+            });
+
+            // 2. RUTA ESPECIAL ZINLI (No usa BPAY, usa recarga externa + P2P)
+            // Hipótesis: Mercantil a Zinli tiene sobreprecio aprox 2.5% sobre la base. Zinli a Binance cuesta 1.025 P2P.
+            let tasaZinliEstimada = (tasaBaseGlobal * 1.025).toFixed(2);
+            let dolaresZinli = montoOriginal / parseFloat(tasaZinliEstimada);
+            let tasaP2PZinli = 1.025; // 1.025 Zinli por 1 USDT
+            let usdtZinliFinal = dolaresZinli / tasaP2PZinli;
+
+            rutasCalculadas.push({
+                id: 'mercantil_zinli',
+                usdtFinal: usdtZinliFinal,
+                html: `
+                    <div class="flow-row" id="row-mercantil_zinli">
+                        <div class="best-badge">🔥 Más Rentable</div>
+                        
+                        <div class="node">
+                            <span class="node-title">Mercantil</span>
+                            <span class="node-amount">${montoOriginal.toLocaleString('es-VE')} Bs</span>
+                            <span class="node-sub">Inicio</span>
+                        </div>
+
+                        <div class="flow-arrow-container">
+                            <span class="flow-arrow-text">Compra Saldo</span>
+                            <div class="flow-arrow-line"></div>
+                        </div>
+
+                        <div class="node" style="border-color: #ff0050; background: #fff1f2;">
+                            <span class="node-title" style="color: #be123c;">App Zinli</span>
+                            <span class="node-amount" style="color: #e11d48;">${dolaresZinli.toFixed(2)} $</span>
+                            <span class="node-sub">Tasa: ${tasaZinliEstimada}</span>
+                        </div>
+
+                        <div class="flow-arrow-container">
+                            <span class="flow-arrow-text">P2P (Tasa ${tasaP2PZinli})</span>
+                            <div class="flow-arrow-line"></div>
+                        </div>
+
+                        <div class="node node-final">
+                            <span class="node-title">Binance USDT</span>
+                            <span class="node-amount">${usdtZinliFinal.toFixed(2)} ₮</span>
+                            <span class="node-sub">Neto Recibido</span>
+                        </div>
+                    </div>
+                `
+            });
+
+            // Renderizar y Marcar el mejor
+            let container = document.getElementById('flow-container');
+            container.innerHTML = '';
+            
+            // Ordenar de mayor USDT a menor
+            rutasCalculadas.sort((a, b) => b.usdtFinal - a.usdtFinal);
+
+            rutasCalculadas.forEach(ruta => {
+                container.innerHTML += ruta.html;
+            });
+
+            // Activar medalla en la mejor ruta
+            const mejorRutaId = rutasCalculadas[0].id;
+            document.getElementById(`row-${mejorRutaId}`).classList.add('best-route');
+        }
+
+        inicializar();
+        setInterval(inicializar, 300000);
+    </script>
+</body>
+</html>
