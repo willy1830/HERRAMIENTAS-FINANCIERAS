@@ -132,7 +132,7 @@
         .tasas-info {
             display: flex;
             align-items: center;
-            justify-content: space-around;
+            justify-content: center;
             background: #fffbeb;
             border: 1px solid #fde68a;
             padding: 10px;
@@ -144,7 +144,7 @@
             text-align: center;
         }
 
-        .tasa-item span { display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; }
+        .tasa-item span { display: block; font-size: 0.85rem; color: #92400e; font-weight: 600; }
         .tasa-item strong { font-size: 1.2rem; color: #b45309; }
 
         /* --- Flujograma Horizontal --- */
@@ -309,8 +309,14 @@
                 <label>Monto a Cambiar (Bs):</label>
                 <input type="number" id="input-bs" value="2500" oninput="calcularFlujos()">
             </div>
+
+            <!-- Tasa Intervención Bancaria -->
+            <div class="input-group">
+                <label>Tasa Intervención Bancaria:</label>
+                <input type="number" id="input-tasa-intervencion" value="0.00" step="0.01" oninput="calcularFlujos()">
+            </div>
             
-            <!-- Comisión BPAY (3.6% por defecto) -->
+            <!-- Comisión BPAY -->
             <div class="input-group">
                 <label>Comisión Fija BPAY %:</label>
                 <input type="number" id="input-com-bpay" value="3.60" step="0.01" oninput="calcularFlujos()">
@@ -324,11 +330,7 @@
             
             <div class="tasas-info">
                 <div class="tasa-item">
-                    <span>Tasa BCV (Mercantil a Zinli)</span>
-                    <strong id="tasa-bcv">...</strong>
-                </div>
-                <div class="tasa-item">
-                    <span>Tasa Base Binance P2P</span>
+                    <span>Tasa Base Binance P2P (Referencial)</span>
                     <strong id="tasa-global">Cargando...</strong>
                 </div>
             </div>
@@ -339,7 +341,7 @@
         </div>
 
         <p class="disclaimer">
-            <strong>Condiciones de cálculo:</strong> El sistema aplica automáticamente las retenciones de las tarjetas virtuales <strong>(BDV: 1.6%, Bancamiga: 5%, Banesco: 2.4%)</strong> y la comisión estándar de depósito <strong>BPAY (3.6%)</strong>. La ruta de Mercantil opera a tasa BCV sin comisión bancaria inicial, dependiendo únicamente del diferencial P2P de Zinli introducido arriba.
+            <strong>Condiciones de cálculo:</strong> El sistema aplica automáticamente las retenciones de las tarjetas virtuales <strong>(BDV: 1.6%, Bancamiga: 5%, Banesco: 2.4%)</strong> y la comisión estándar <strong>BPAY (3.6%)</strong>. La ruta de Mercantil opera a la Tasa de Intervención Bancaria indicada, con 0% de comisión del banco, sujeta únicamente al diferencial P2P de Zinli.
         </p>
 
     </div>
@@ -350,17 +352,19 @@
 
         async function inicializar() {
             try {
-                // Obtenemos BCV Oficial
+                // Obtenemos BCV Oficial para usarlo solo como un relleno inicial sugerido
                 const resBCV = await fetch('https://open.er-api.com/v6/latest/USD');
                 const dataBCV = await resBCV.json();
                 tasaBCVGlobal = dataBCV.rates.VES;
-                document.getElementById('tasa-bcv').innerText = tasaBCVGlobal.toFixed(2);
+                
+                // Rellenamos el input de intervención con el BCV inicial para que el campo no esté vacío
+                document.getElementById('input-tasa-intervencion').value = tasaBCVGlobal.toFixed(2);
 
                 // Obtenemos P2P General Binance
                 const resBinance = await fetch('https://criptoya.com/api/binancep2p/usdt/ves');
                 const dataBinance = await resBinance.json();
                 tasaBaseGlobal = dataBinance.ask;
-                document.getElementById('tasa-global').innerText = tasaBaseGlobal.toFixed(2);
+                document.getElementById('tasa-global').innerText = tasaBaseGlobal.toFixed(2) + ' Bs';
 
                 calcularFlujos();
             } catch (error) {
@@ -369,11 +373,14 @@
         }
 
         function calcularFlujos() {
-            if (tasaBaseGlobal === 0 || tasaBCVGlobal === 0) return;
+            if (tasaBaseGlobal === 0) return;
 
             const montoOriginal = parseFloat(document.getElementById('input-bs').value) || 0;
             const comisionBpayPct = parseFloat(document.getElementById('input-com-bpay').value) || 3.6;
             const tasaZinliP2P = parseFloat(document.getElementById('input-tasa-zinli').value) || 1.025;
+            
+            // Tomamos la Tasa de Intervención de la casilla, o caemos al BCV si la dejan en blanco
+            const tasaIntervencion = parseFloat(document.getElementById('input-tasa-intervencion').value) || tasaBCVGlobal;
 
             let rutasCalculadas = [];
 
@@ -438,8 +445,8 @@
             });
 
             // 2. RUTA P2P ZINLI (MERCANTIL)
-            // Conversión de Bs a USD usando la Tasa Oficial BCV, comisión 0%
-            let dolaresZinli = montoOriginal / tasaBCVGlobal;
+            // Conversión de Bs a USD usando la Tasa de Intervención (editable por el usuario), comisión 0%
+            let dolaresZinli = montoOriginal / tasaIntervencion;
             
             // Envío de Zinli a Binance USDT usando la tasa P2P
             let usdtZinliFinal = dolaresZinli / tasaZinliP2P;
@@ -465,7 +472,7 @@
                         <div class="node" style="border-color: #ff0050; background: #fff1f2;">
                             <span class="node-title" style="color: #be123c;">App Zinli</span>
                             <span class="node-amount" style="color: #e11d48;">${dolaresZinli.toFixed(2)} $</span>
-                            <span class="node-sub">Cambio a Tasa BCV</span>
+                            <span class="node-sub">Tasa Intervención</span>
                         </div>
 
                         <div class="flow-arrow-container">
