@@ -18,7 +18,6 @@
             background-color: #f8fafc; 
         }
 
-        /* --- CINTILLO (TICKER) FINANCIERO --- */
         .ticker-wrap {
             width: 100%;
             background-color: #1a365d; 
@@ -60,9 +59,7 @@
             0% { transform: translateX(100vw); }
             100% { transform: translateX(-100%); }
         }
-        /* --------------------------------------------- */
 
-        /* --- Animación de Ondas Estilo PlayStation --- */
         .ps-waves {
             position: fixed;
             top: 0;
@@ -110,7 +107,6 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        /* --------------------------------------------- */
 
         .header {
             text-align: center;
@@ -198,14 +194,12 @@
 </head>
 <body>
 
-    <!-- Cintillo Financiero Superior -->
     <div class="ticker-wrap">
         <div class="ticker-content" id="cintillo-datos">
             <div class="ticker-item">Sincronizando con el servidor de Cloudflare... ⏳</div>
         </div>
     </div>
 
-    <!-- Capas animadas del fondo -->
     <div class="ps-waves">
         <div class="wave -one"></div>
         <div class="wave -two"></div>
@@ -218,7 +212,6 @@
     </div>
 
     <div class="hub-grid">
-        <!-- Tototicket (Calculadora) -->
         <a href="calculadoracambio.html" class="tool-card">
             <div class="logo-container" style="background: transparent;">
                 <img src="tototicket.png" alt="Logo Tototicket" style="width: 100%; height: 100%; object-fit: cover; border-radius: 22px;">
@@ -227,16 +220,12 @@
             <p class="tool-desc">Cálculo exacto de comisiones y saldos a debitar.</p>
         </a>
 
-        <!-- Comparador Binance P2P -->
         <a href="comparador_binance.html" class="tool-card">
-            <div class="logo-container" style="background: #1e2329; color: #fcd535; border: none;">
-                ⚡
-            </div>
+            <div class="logo-container" style="background: #1e2329; color: #fcd535; border: none;">⚡</div>
             <h2 class="tool-title">Arbitraje Binance</h2>
             <p class="tool-desc">Compara tasas de la banca vs P2P para maximizar tus USDT.</p>
         </a>
 
-        <!-- Calendario de Pagos -->
         <a href="calendario_pagos.html" class="tool-card">
             <div class="logo-container">📅</div>
             <h2 class="tool-title">Calendario de Pagos</h2>
@@ -244,13 +233,11 @@
         </a>
     </div>
 
-    <!-- Script conectado a tu propio servidor de Cloudflare Functions -->
     <script>
         async function obtenerTasas() {
             const cintillo = document.getElementById('cintillo-datos');
             
             try {
-                // Llamamos a la función interna (/tasas) que sortea los bloqueos de red
                 const respuesta = await fetch('/tasas');
                 
                 if (!respuesta.ok) throw new Error("Error en el servidor local");
@@ -269,18 +256,15 @@
                     <div class="ticker-item">⏱️ Actualizado: <strong>${fechaStr}, ${horaStr}</strong></div>
                 `;
 
-                // Inyectamos el contenido dos veces para el efecto continuo de la marquesina
                 cintillo.innerHTML = contenido + `<div class="ticker-item" style="margin-left: 100px;"></div>` + contenido;
                 
             } catch (error) {
                 console.error("Fallo interno:", error);
-                cintillo.innerHTML = `<div class="ticker-item">⚠️ Sincronizando con el servidor de Cloudflare...</div>`;
+                cintillo.innerHTML = `<div class="ticker-item">⚠️ Error al sincronizar. Verificando servidor local...</div>`;
             }
         }
 
-        // Ejecutar al abrir
         obtenerTasas();
-        // Refrescar cada 15 minutos (900,000 ms)
         setInterval(obtenerTasas, 900000);
     </script>
 
