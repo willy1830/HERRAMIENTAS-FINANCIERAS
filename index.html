@@ -40,7 +40,6 @@
             animation: ticker-move 20s linear infinite;
         }
 
-        /* ¡La animación se pausa al pasar el mouse para poder hacer clic! */
         .ticker-content:hover {
             animation-play-state: paused; 
         }
@@ -55,19 +54,15 @@
         .ticker-item strong {
             color: #fcd535; 
             font-size: 1.05rem;
-            transition: color 0.2s;
-        }
-
-        .ticker-item strong:hover {
-            color: #ffffff;
         }
 
         @keyframes ticker-move {
             0% { transform: translateX(100vw); }
             100% { transform: translateX(-100%); }
         }
+        /* --------------------------------------------- */
 
-        /* --- Animación de Ondas --- */
+        /* --- Animación de Ondas Estilo PlayStation --- */
         .ps-waves {
             position: fixed;
             top: 0;
@@ -87,17 +82,63 @@
             opacity: 0.4;
         }
 
-        .wave.-one { background: #e2e8f0; top: 40vh; left: -25vw; animation-duration: 30s; }
-        .wave.-two { background: #ffffff; top: 45vh; left: -20vw; animation-duration: 35s; opacity: 0.8; box-shadow: 0 0 40px rgba(0,0,0,0.02); }
-        .wave.-three { background: #e0f2fe; top: 50vh; left: -30vw; animation-duration: 40s; opacity: 0.5; }
+        .wave.-one {
+            background: #e2e8f0;
+            top: 40vh;
+            left: -25vw;
+            animation-duration: 30s; 
+        }
 
-        @keyframes drift { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .wave.-two {
+            background: #ffffff;
+            top: 45vh;
+            left: -20vw;
+            animation-duration: 35s;
+            opacity: 0.8;
+            box-shadow: 0 0 40px rgba(0,0,0,0.02); 
+        }
+        
+        .wave.-three {
+            background: #e0f2fe;
+            top: 50vh;
+            left: -30vw;
+            animation-duration: 40s;
+            opacity: 0.5;
+        }
 
-        .header { text-align: center; margin-bottom: 3rem; margin-top: 1rem; z-index: 1; }
-        .header h1 { color: #1a365d; margin-bottom: 0.5rem; font-size: 2.5rem; }
-        .header p { color: #4a5568; font-size: 1.1rem; }
+        @keyframes drift {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* --------------------------------------------- */
 
-        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2.5rem; width: 100%; max-width: 1000px; justify-content: center; z-index: 1; }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            margin-top: 1rem;
+            z-index: 1; 
+        }
+        
+        .header h1 {
+            color: #1a365d;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 1000px;
+            justify-content: center;
+            z-index: 1;
+        }
 
         .tool-card {
             background: rgba(255, 255, 255, 0.85);
@@ -117,21 +158,53 @@
             margin: 0 auto;
         }
 
-        .tool-card:hover { transform: translateY(-8px); background: #ffffff; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1); border-color: #3182ce; }
+        .tool-card:hover {
+            transform: translateY(-8px);
+            background: #ffffff;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border-color: #3182ce;
+        }
 
-        .logo-container { width: 85px; height: 85px; background: #ebf8ff; border-radius: 22px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; margin-bottom: 1.5rem; color: #3182ce; overflow: hidden; }
-        .tool-title { font-size: 1.3rem; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem; margin-top: 0; }
-        .tool-desc { font-size: 0.95rem; color: #718096; margin: 0; line-height: 1.5; }
+        .logo-container {
+            width: 85px;
+            height: 85px;
+            background: #ebf8ff;
+            border-radius: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #3182ce;
+            overflow: hidden;
+        }
+
+        .tool-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .tool-desc {
+            font-size: 0.95rem;
+            color: #718096;
+            margin: 0;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Cintillo Financiero Superior -->
     <div class="ticker-wrap">
         <div class="ticker-content" id="cintillo-datos">
-            <div class="ticker-item">Iniciando sistema de tasas... ⏳</div>
+            <div class="ticker-item">Conectando con servidores globales... ⚡</div>
         </div>
     </div>
 
+    <!-- Capas animadas del fondo -->
     <div class="ps-waves">
         <div class="wave -one"></div>
         <div class="wave -two"></div>
@@ -144,6 +217,7 @@
     </div>
 
     <div class="hub-grid">
+        <!-- Tototicket (Calculadora) -->
         <a href="calculadoracambio.html" class="tool-card">
             <div class="logo-container" style="background: transparent;">
                 <img src="tototicket.png" alt="Logo Tototicket" style="width: 100%; height: 100%; object-fit: cover; border-radius: 22px;">
@@ -152,12 +226,16 @@
             <p class="tool-desc">Cálculo exacto de comisiones y saldos a debitar.</p>
         </a>
 
+        <!-- Comparador Binance P2P -->
         <a href="comparador_binance.html" class="tool-card">
-            <div class="logo-container" style="background: #1e2329; color: #fcd535; border: none;">⚡</div>
+            <div class="logo-container" style="background: #1e2329; color: #fcd535; border: none;">
+                ⚡
+            </div>
             <h2 class="tool-title">Arbitraje Binance</h2>
             <p class="tool-desc">Compara tasas de la banca vs P2P para maximizar tus USDT.</p>
         </a>
 
+        <!-- Calendario de Pagos -->
         <a href="calendario_pagos.html" class="tool-card">
             <div class="logo-container">📅</div>
             <h2 class="tool-title">Calendario de Pagos</h2>
@@ -165,89 +243,50 @@
         </a>
     </div>
 
-    <!-- SCRIPT DE MEMORIA LOCAL Y OVERRIDE MANUAL -->
+    <!-- SCRIPT DE CONEXIÓN A APIS INTERNACIONALES (Automático) -->
     <script>
-        // 1. Leemos la memoria del navegador por si la API falla
-        let bcv = localStorage.getItem('tasa_bcv') || "N/A";
-        let binance = localStorage.getItem('tasa_binance') || "N/A";
-
         async function obtenerTasas() {
+            const cintillo = document.getElementById('cintillo-datos');
+            
             try {
-                // Intentamos conectar al dominio oficial primario
-                const res = await fetch('https://pydolarve.org/api/v1/dollar');
-                if (!res.ok) throw new Error("Conexión rechazada por la API");
+                // 1. Petición para el BCV usando Open Exchange Rates (Global)
+                const resBCV = await fetch('https://open.er-api.com/v6/latest/USD');
+                if (!resBCV.ok) throw new Error('Fallo la conexión con ER-API');
+                const dataBCV = await resBCV.json();
+                const precioBCV = dataBCV.rates.VES.toFixed(2); // Extraemos los bolívares y limitamos a 2 decimales
                 
-                const data = await res.json();
-                bcv = data.monitors.bcv.price;
-                binance = data.monitors.binance.price;
+                // 2. Petición para Binance usando CriptoYa (Robusta)
+                const resBinance = await fetch('https://criptoya.com/api/binancep2p/usdt/ves');
+                if (!resBinance.ok) throw new Error('Fallo la conexión con CriptoYa');
+                const dataBinance = await resBinance.json();
+                const precioBinance = dataBinance.ask.toFixed(2); // El 'ask' es el precio de venta en el mercado P2P
                 
-                // Si la conexión fue exitosa, respaldamos los datos en la PC
-                localStorage.setItem('tasa_bcv', bcv);
-                localStorage.setItem('tasa_binance', binance);
+                // Obtenemos la fecha y hora de tu dispositivo
+                const ahora = new Date();
+                const horaStr = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+                const fechaStr = ahora.toLocaleDateString('es-VE', { day: '2-digit', month: 'short' });
+                
+                // Construimos el texto del cintillo
+                const contenido = `
+                    <div class="ticker-item">🏦 Tasa BCV Oficial: <strong>${precioBCV} Bs.</strong></div>
+                    <div class="ticker-item">⚡ Binance P2P: <strong>${precioBinance} Bs.</strong></div>
+                    <div class="ticker-item">⏱️ Actualizado: <strong>${fechaStr}, ${horaStr}</strong></div>
+                `;
+
+                // Inyectamos doble bloque para que el movimiento sea infinito
+                cintillo.innerHTML = contenido + `<div class="ticker-item" style="margin-left: 100px;"></div>` + contenido;
                 
             } catch (error) {
-                console.warn("Fallo de red. Activando protocolo de memoria local.");
+                console.error("Intermitencia detectada:", error);
+                cintillo.innerHTML = `<div class="ticker-item">⚠️ Sincronizando con los servidores...</div>`;
             }
-            
-            // Renderizamos independientemente de si hubo internet o no
-            actualizarHTML();
         }
 
-        function actualizarHTML() {
-            const cintillo = document.getElementById('cintillo-datos');
-            const ahora = new Date();
-            let horaStr = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
-            
-            // Creamos los bloques con la función onclick para editar
-            const contenido = `
-                <div class="ticker-item">
-                    🏦 Tasa BCV Oficial: 
-                    <strong style="cursor:pointer; border-bottom: 1px dashed #fcd535; padding-bottom: 2px;" onclick="modificarManual('bcv')" title="Click para configurar manualmente">
-                        ${bcv} Bs. ✎
-                    </strong>
-                </div>
-                <div class="ticker-item">
-                    ⚡ Binance P2P: 
-                    <strong style="cursor:pointer; border-bottom: 1px dashed #fcd535; padding-bottom: 2px;" onclick="modificarManual('binance')" title="Click para configurar manualmente">
-                        ${binance} Bs. ✎
-                    </strong>
-                </div>
-                <div class="ticker-item">⏱️ Info Local: <strong>${horaStr}</strong></div>
-            `;
-
-            cintillo.innerHTML = contenido + `<div class="ticker-item" style="margin-left: 100px;"></div>` + contenido;
-        }
-
-        // 2. Sistema de Válvula de Emergencia Manual
-        window.modificarManual = function(tipo) {
-            let nombre = tipo === 'bcv' ? 'BCV Oficial' : 'Binance P2P';
-            let valorActual = tipo === 'bcv' ? bcv : binance;
-            
-            // Sale una ventanita en el navegador preguntando la tasa
-            let nuevoValor = prompt(`⚙️ MODO MANUAL ACTIVADO\n\nIngresa la tasa actual para ${nombre}:`, valorActual);
-            
-            if (nuevoValor !== null && nuevoValor.trim() !== "") {
-                // Cambiamos comas por puntos automáticamente por si lo escriben a lo venezolano
-                let valorLimpio = parseFloat(nuevoValor.replace(',', '.')).toFixed(2);
-                
-                if (!isNaN(valorLimpio)) {
-                    // Actualizamos la variable y la memoria
-                    if (tipo === 'bcv') bcv = valorLimpio;
-                    if (tipo === 'binance') binance = valorLimpio;
-                    
-                    localStorage.setItem(`tasa_${tipo}`, valorLimpio);
-                    actualizarHTML(); // Refrescamos el cintillo
-                } else {
-                    alert("⚠️ Por favor, ingresa solo números válidos (Ej: 36.50)");
-                }
-            }
-        };
-
-        // Arrancamos el sistema apenas carga la página
+        // Ejecutar inmediatamente al abrir la página
         obtenerTasas();
         
-        // Lo ponemos a buscar actualizaciones cada 15 minutos en segundo plano
-        setInterval(obtenerTasas, 900000);
+        // Refrescar los datos cada 10 minutos automáticamente
+        setInterval(obtenerTasas, 600000);
     </script>
 
 </body>
