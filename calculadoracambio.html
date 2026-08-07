@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Retiros</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #fffaf0;
+            padding: 1rem;
+        }
+
+        /* --- Animación de Ondas Estilo PlayStation (Tema Naranja) --- */
+        .ps-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .wave {
+            position: absolute;
+            width: 150vw;
+            height: 150vw;
+            border-radius: 43% 47% 40% 45%; 
+            animation: drift 25s infinite linear;
+            opacity: 0.4;
+        }
+
+        .wave.-one {
+            background: #fed7aa; 
+            top: 40vh;
+            left: -25vw;
+            animation-duration: 30s;
+        }
+
+        .wave.-two {
+            background: #ffffff;
+            top: 45vh;
+            left: -20vw;
+            animation-duration: 35s;
+            opacity: 0.8;
+            box-shadow: 0 0 40px rgba(255, 165, 0, 0.1); 
+        }
+        
+        .wave.-three {
+            background: #fdba74; 
+            top: 50vh;
+            left: -30vw;
+            animation-duration: 40s;
+            opacity: 0.5;
+        }
+
+        @keyframes drift {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* --------------------------------------------- */
+
+        .calculator-wrapper {
+            width: 100%;
+            max-width: 350px;
+            z-index: 1;
+        }
+
+        .back-btn {
+            display: inline-block;
+            color: #dd6b20;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(221, 107, 32, 0.2);
+        }
+
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(221, 107, 32, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Estilo para el contenedor del logo interno */
+        .card-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-logo img {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(221, 107, 32, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #dd6b20;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #ed8936;
+            box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #ed8936;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #dd6b20;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(255, 250, 240, 0.9);
+            border-radius: 6px;
+            border: 1px solid #feebc8;
+        }
+
+        .result p {
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+        }
+
+        .result strong {
+            color: #dd6b20;
+        }
+
+        .result .highlight {
+            font-size: 1.1rem;
+            border-top: 1px solid #feebc8;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ps-waves">
+    <div class="wave -one"></div>
+    <div class="wave -two"></div>
+    <div class="wave -three"></div>
+</div>
+
+<div class="calculator-wrapper">
+    <a href="index.html" class="back-btn">← Volver al Portal</a>
+
+    <div class="calculator-card">
+        <!-- Logo agregado aquí -->
+        <div class="card-logo">
+            <img src="tototicket.png" alt="Logo Tototicket">
+        </div>
+
+        <h2>Calculadora de Retiros</h2>
+        
+        <div class="input-group">
+            <label for="saldoTotal">Saldo Total Disponible (Bs.)</label>
+            <input type="number" id="saldoTotal" step="0.01" placeholder="Ej. 72098.28">
+        </div>
+
+        <div class="input-group">
+            <label for="comision">Comisión de la plataforma (%)</label>
+            <input type="number" id="comision" step="0.01" value="0.6">
+        </div>
+
+        <div class="input-group">
+            <label for="saldoRestante">Saldo a dejar en cuenta (Bs.)</label>
+            <input type="number" id="saldoRestante" step="0.01" value="0.00">
+        </div>
+
+        <button onclick="calcularRetiro()">Calcular Monto Exacto</button>
+
+        <div class="result" id="resultado" style="display: none;">
+            <p>Comisión generada: <strong id="montoComision">0.00 Bs.</strong></p>
+            <p>Total a debitar: <strong id="totalDebitar">0.00 Bs.</strong></p>
+            <p class="highlight">Monto a transferir: <strong id="montoTransferir">0.00 Bs.</strong></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calcularRetiro() {
+        const saldoTotal = parseFloat(document.getElementById('saldoTotal').value) || 0;
+        const porcentajeComision = parseFloat(document.getElementById('comision').value) || 0;
+        const saldoRestante = parseFloat(document.getElementById('saldoRestante').value) || 0;
+
+        const saldoUtilizar = saldoTotal - saldoRestante;
+        
+        if (saldoUtilizar <= 0) {
+            alert("El saldo a utilizar debe ser mayor que cero.");
+            return;
+        }
+
+        const montoTransferir = saldoUtilizar / (1 + (porcentajeComision / 100));
+        const comision = montoTransferir * (porcentajeComision / 100);
+        const totalDebitar = montoTransferir + comision;
+
+        document.getElementById('montoComision').innerText = comision.toFixed(2) + " Bs.";
+        document.getElementById('totalDebitar').innerText = totalDebitar.toFixed(2) + " Bs.";
+        document.getElementById('montoTransferir').innerText = montoTransferir.toFixed(2) + " Bs.";
+        
+        document.getElementById('resultado').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
