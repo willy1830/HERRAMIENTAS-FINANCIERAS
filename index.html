@@ -239,7 +239,16 @@
         <a href="calendario_pagos.html" class="tool-card">
             <div class="logo-container">📅</div>
             <h2 class="tool-title">Calendario de Pagos</h2>
-            <p class="tool-desc">Cronograma de quincenas y utilidades.</p>
+            <p class="tool-desc">Cronograma de quincenas, salarios, Tebca y utilidades.</p>
+        </a>
+
+        <!-- Calculadora de Vacaciones -->
+        <a href="calculadora_vacaciones.html" class="tool-card">
+            <div class="logo-container" style="background: #e6fffa; color: #319795; border: none;">
+                🏖️
+            </div>
+            <h2 class="tool-title">Vacaciones</h2>
+            <p class="tool-desc">Cálculo de pago de vacaciones</p>
         </a>
     </div>
 
@@ -253,15 +262,15 @@
                 const resBCV = await fetch('https://open.er-api.com/v6/latest/USD');
                 if (!resBCV.ok) throw new Error('Fallo la conexión con ER-API');
                 const dataBCV = await resBCV.json();
-                const precioBCV = dataBCV.rates.VES.toFixed(2); // Extraemos los bolívares y limitamos a 2 decimales
+                const precioBCV = dataBCV.rates.VES.toFixed(2);
                 
                 // 2. Petición para Binance usando CriptoYa (Robusta)
                 const resBinance = await fetch('https://criptoya.com/api/binancep2p/usdt/ves');
                 if (!resBinance.ok) throw new Error('Fallo la conexión con CriptoYa');
                 const dataBinance = await resBinance.json();
-                const precioBinance = dataBinance.ask.toFixed(2); // El 'ask' es el precio de venta en el mercado P2P
+                const precioBinance = dataBinance.ask.toFixed(2);
                 
-                // Obtenemos la fecha y hora de tu dispositivo
+                // Obtenemos la fecha y hora 
                 const ahora = new Date();
                 const horaStr = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
                 const fechaStr = ahora.toLocaleDateString('es-VE', { day: '2-digit', month: 'short' });
@@ -273,12 +282,12 @@
                     <div class="ticker-item">⏱️ Actualizado: <strong>${fechaStr}, ${horaStr}</strong></div>
                 `;
 
-                // Inyectamos doble bloque para que el movimiento sea infinito
+                // Inyectamos doble bloque para el movimiento infinito
                 cintillo.innerHTML = contenido + `<div class="ticker-item" style="margin-left: 100px;"></div>` + contenido;
                 
             } catch (error) {
                 console.error("Intermitencia detectada:", error);
-                cintillo.innerHTML = `<div class="ticker-item">⚠️ Sincronizando con los servidores...</div>`;
+                cintillo.innerHTML = `<div class="ticker-item">⚠️ Sincronizando con los servidores globales...</div>`;
             }
         }
 
