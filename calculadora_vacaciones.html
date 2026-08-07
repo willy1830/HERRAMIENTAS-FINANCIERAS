@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Vacaciones</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem; 
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #f8fafc; 
+        }
+
+        /* --- Animación de Ondas Estilo PlayStation --- */
+        .ps-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1; 
+        }
+
+        .wave {
+            position: absolute;
+            width: 150vw;
+            height: 150vw;
+            border-radius: 43% 47% 40% 45%; 
+            animation: drift 25s infinite linear;
+            opacity: 0.4;
+        }
+
+        .wave.-one { background: #e2e8f0; top: 40vh; left: -25vw; animation-duration: 30s; }
+        .wave.-two { background: #ffffff; top: 45vh; left: -20vw; animation-duration: 35s; opacity: 0.8; box-shadow: 0 0 40px rgba(0,0,0,0.02); }
+        .wave.-three { background: #e0f2fe; top: 50vh; left: -30vw; animation-duration: 40s; opacity: 0.5; }
+
+        @keyframes drift { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- Contenedores y Tarjetas --- */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            z-index: 1; 
+        }
+        
+        .header h1 {
+            color: #1a365d;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+
+        .btn-volver {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #3182ce;
+            text-decoration: none;
+            font-weight: bold;
+            background: rgba(255,255,255,0.8);
+            padding: 8px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+
+        .btn-volver:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); 
+            width: 100%;
+            max-width: 500px;
+            z-index: 1;
+        }
+
+        /* --- Selector (Toggle) --- */
+        .toggle-container {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #ffffff;
+            color: #3182ce;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* --- Formularios --- */
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 90%;
+            padding: 10px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #f8fafc;
+            color: #2d3748;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3182ce;
+            background: #ffffff;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-calcular {
+            width: 100%;
+            padding: 14px;
+            background: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-calcular:hover {
+            background: #2b6cb0;
+        }
+
+        /* --- Resultados --- */
+        .resultados {
+            margin-top: 2rem;
+            background: #f0f7ff;
+            border: 1px solid #bee3f8;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: none; /* Oculto hasta calcular */
+            text-align: left;
+        }
+
+        .res-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #2d3748;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .res-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .res-item.destacado {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1a365d;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px dashed #cbd5e0;
+        }
+
+        .res-item.final {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #276749;
+            background: #c6f6d5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #9ae6b4;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="ps-waves">
+        <div class="wave -one"></div>
+        <div class="wave -two"></div>
+        <div class="wave -three"></div>
+    </div>
+
+    <div class="header">
+        <a href="index.html" class="btn-volver">← Volver al Hub</a>
+        <h1>Cálculo de Vacaciones</h1>
+    </div>
+
+    <div class="card">
+        
+        <div class="toggle-container">
+            <button class="toggle-btn active" id="btn-mensual" onclick="cambiarModo('mensual')">Nómina Mensual</button>
+            <button class="toggle-btn" id="btn-semanal" onclick="cambiarModo('semanal')">Nómina Semanal</button>
+        </div>
+
+        <!-- Inputs Dinámicos de Sueldo -->
+        <div id="inputs-mensual" class="grid-inputs">
+            <div class="form-group">
+                <label>Quincena Anterior</label>
+                <input type="number" id="q1" placeholder="Ej: 3500">
+            </div>
+            <div class="form-group">
+                <label>Última Quincena</label>
+                <input type="number" id="q2" placeholder="Ej: 3500">
+            </div>
+        </div>
+
+        <div id="inputs-semanal" class="grid-inputs" style="display: none;">
+            <div class="form-group"><label>Semana 1</label><input type="number" id="s1"></div>
+            <div class="form-group"><label>Semana 2</label><input type="number" id="s2"></div>
+            <div class="form-group"><label>Semana 3</label><input type="number" id="s3"></div>
+            <div class="form-group"><label>Semana 4</label><input type="number" id="s4"></div>
+        </div>
+
+        <!-- Datos Generales -->
+        <div class="grid-inputs" style="margin-top: 10px;">
+            <div class="form-group">
+                <label>Años de Servicio</label>
+                <input type="number" id="anios" min="1" placeholder="Ej: 5">
+            </div>
+            <div class="form-group">
+                <label>Feriados Móviles (Días)</label>
+                <input type="number" id="feriados-extra" value="0" title="Días extra a saltar, como Carnaval o Jueves/Viernes Santo si caen en tus vacaciones">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Fecha de Salida (1er día de descanso)</label>
+            <input type="date" id="fecha-salida">
+        </div>
+
+        <button class="btn-calcular" onclick="calcularVacaciones()">Procesar Cálculo</button>
+
+        <!-- Panel de Resultados -->
+        <div class="resultados" id="panel-resultados">
+            <div class="res-item">
+                <span>Promedio Diario Base:</span>
+                <strong id="res-promedio">0.00</strong>
+            </div>
+            <div class="res-item">
+                <span>Días Hábiles Legales:</span>
+                <strong id="res-habiles">0</strong>
+            </div>
+            <div class="res-item">
+                <span>Proyección Calendario:</span>
+                <strong id="res-calendario">0 días ordinarios</strong>
+            </div>
+            <div class="res-item destacado">
+                <span>Total de Días a Pagar:</span>
+                <span style="text-align: right;">
+                    <small style="font-weight:normal; color:#718096;">(Calendario + 45 Bono)</small><br>
+                    <strong id="res-dias-pagar">0 días</strong>
+                </span>
+            </div>
+            <div class="res-item final">
+                <span>Total Vacaciones:</span>
+                <strong id="res-monto">0.00</strong>
+            </div>
+            
+            <div style="margin-top:15px; font-size:0.85rem; color:#718096; text-align:center;">
+                Fecha estimada de regreso: <strong id="res-regreso" style="color:#4a5568;">-</strong>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Establecer la fecha actual por defecto en el input
+        document.getElementById('fecha-salida').valueAsDate = new Date();
+        
+        let modoActual = 'mensual';
+
+        function cambiarModo(modo) {
+            modoActual = modo;
+            document.getElementById('btn-mensual').classList.remove('active');
+            document.getElementById('btn-semanal').classList.remove('active');
+            document.getElementById(`btn-${modo}`).classList.add('active');
+
+            if (modo === 'mensual') {
+                document.getElementById('inputs-mensual').style.display = 'grid';
+                document.getElementById('inputs-semanal').style.display = 'none';
+            } else {
+                document.getElementById('inputs-mensual').style.display = 'none';
+                document.getElementById('inputs-semanal').style.display = 'grid';
+            }
+        }
+
+        // Feriados Fijos de Venezuela (Día-Mes)
+        const feriadosFijos = ["01-01", "19-04", "01-05", "24-06", "05-07", "24-07", "12-10", "24-12", "25-12", "31-12"];
+
+        function esFeriadoFijo(fecha) {
+            let d = String(fecha.getDate()).padStart(2, '0');
+            let m = String(fecha.getMonth() + 1).padStart(2, '0');
+            return feriadosFijos.includes(`${d}-${m}`);
+        }
+
+        function calcularVacaciones() {
+            // 1. Cálculo del Promedio Diario
+            let totalDevengado = 0;
+            if (modoActual === 'mensual') {
+                let q1 = parseFloat(document.getElementById('q1').value) || 0;
+                let q2 = parseFloat(document.getElementById('q2').value) || 0;
+                totalDevengado = q1 + q2;
+            } else {
+                let s1 = parseFloat(document.getElementById('s1').value) || 0;
+                let s2 = parseFloat(document.getElementById('s2').value) || 0;
+                let s3 = parseFloat(document.getElementById('s3').value) || 0;
+                let s4 = parseFloat(document.getElementById('s4').value) || 0;
+                totalDevengado = s1 + s2 + s3 + s4;
+            }
+
+            const promedioDiario = totalDevengado / 30;
+
+            // 2. Días Hábiles Correspondientes
+            let anios = parseInt(document.getElementById('anios').value) || 1;
+            // 25 base, +1 por año adicional (anios-1), tope máximo de 40 días hábiles (25+15)
+            let diasHabiles = 25 + (anios - 1);
+            if (diasHabiles > 40) diasHabiles = 40; 
+
+            // 3. Proyección en Calendario (Días Totales/Ordinarios)
+            let fechaStr = document.getElementById('fecha-salida').value;
+            if(!fechaStr) {
+                alert("Por favor, selecciona una fecha de salida.");
+                return;
+            }
+            
+            // Reemplazamos los guiones para evitar problemas de zona horaria al instanciar
+            let fechaSimulacion = new Date(fechaStr + 'T00:00:00');
+            
+            let diasOrdinarios = 0;
+            let habilesContados = 0;
+
+            while (habilesContados < diasHabiles) {
+                let diaSemana = fechaSimulacion.getDay();
+                let esFinDeSemana = (diaSemana === 0 || diaSemana === 6); // 0=Dom, 6=Sab
+                
+                if (!esFinDeSemana && !esFeriadoFijo(fechaSimulacion)) {
+                    habilesContados++;
+                }
+                
+                diasOrdinarios++;
+                // Avanzamos 1 día
+                if(habilesContados < diasHabiles) {
+                    fechaSimulacion.setDate(fechaSimulacion.getDate() + 1);
+                }
+            }
+
+            // Sumamos los feriados móviles que el usuario haya indicado (Ej: Carnaval)
+            let feriadosExtra = parseInt(document.getElementById('feriados-extra').value) || 0;
+            diasOrdinarios += feriadosExtra;
+            
+            // Calculamos la fecha de regreso sumando los feriados extra al calendario
+            fechaSimulacion.setDate(fechaSimulacion.getDate() + feriadosExtra + 1); // +1 porque regresa el día siguiente al último de vacaciones
+
+            // 4. Totales y Pagos
+            const bonoVacacional = 45;
+            const totalDiasPagar = diasOrdinarios + bonoVacacional;
+            const pagoTotal = totalDiasPagar * promedioDiario;
+
+            // 5. Imprimir en pantalla
+            document.getElementById('res-promedio').innerText = promedioDiario.toFixed(2);
+            document.getElementById('res-habiles').innerText = diasHabiles;
+            document.getElementById('res-calendario').innerText = `${diasOrdinarios} días`;
+            document.getElementById('res-dias-pagar').innerText = totalDiasPagar;
+            document.getElementById('res-monto').innerText = pagoTotal.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('res-regreso').innerText = fechaSimulacion.toLocaleDateString('es-VE', opcionesFecha);
+
+            document.getElementById('panel-resultados').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
