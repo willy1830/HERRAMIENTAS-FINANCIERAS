@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Pagos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 2rem 1rem;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            color: #3182ce;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #ebf8ff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            color: #1a365d;
+            margin: 0 0 0.5rem 0;
+        }
+        .header p {
+            color: #4a5568;
+            margin: 0;
+        }
+        .month-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #3182ce;
+        }
+        .month-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 0.5rem;
+        }
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            font-size: 1.05rem;
+            color: #4a5568;
+        }
+        .payment-row:not(:last-child) {
+            border-bottom: 1px solid #edf2f7;
+        }
+        .special-payment {
+            display: flex;
+            justify-content: space-between;
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            border: 1px solid #bee3f8;
+        }
+        .date {
+            font-weight: 600;
+            color: #1a365d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Botón para regresar al Hub -->
+        <a href="index.html" class="back-btn">← Volver al Portal</a>
+
+        <div class="header">
+            <h1>Calendario de Pagos</h1>
+            <p>Cronograma oficial del segundo semestre</p>
+        </div>
+
+        <div class="month-card">
+            <h2 class="month-title">Julio</h2>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Martes 28</span>
+            </div>
+        </div>
+
+        <div class="month-card">
+            <h2 class="month-title">Agosto</h2>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Jueves 13</span>
+            </div>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Viernes 28</span>
+            </div>
+        </div>
+
+        <div class="month-card">
+            <h2 class="month-title">Septiembre</h2>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Viernes 11</span>
+            </div>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Viernes 25</span>
+            </div>
+        </div>
+
+        <div class="month-card">
+            <h2 class="month-title">Octubre</h2>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Viernes 9</span>
+            </div>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Viernes 23</span>
+            </div>
+        </div>
+
+        <div class="month-card">
+            <h2 class="month-title">Noviembre</h2>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Viernes 13</span>
+            </div>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Jueves 26</span>
+            </div>
+            <div class="special-payment">
+                <span>🌟 Utilidades</span>
+                <span class="date">Viernes 27</span>
+            </div>
+        </div>
+
+        <div class="month-card">
+            <h2 class="month-title">Diciembre</h2>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Viernes 11</span>
+            </div>
+            <div class="payment-row">
+                <span>Quincena</span>
+                <span class="date">Miércoles 23</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
