@@ -196,7 +196,7 @@
 
     <div class="ticker-wrap">
         <div class="ticker-content" id="cintillo-datos">
-            <div class="ticker-item">Sincronizando con el servidor de Cloudflare... ⏳</div>
+            <div class="ticker-item">Sincronizando motores de búsqueda... ⏳</div>
         </div>
     </div>
 
@@ -233,19 +233,46 @@
         </a>
     </div>
 
+    <!-- SCRIPT DUAL HÍBRIDO -->
     <script>
         async function obtenerTasas() {
             const cintillo = document.getElementById('cintillo-datos');
+            let precioBCV = null;
+            let precioBinance = null;
             
             try {
-                const respuesta = await fetch('/tasas');
+                // INTENTO 1: Usar tu propio servidor Cloudflare (Ruta silenciosa)
+                const respuestaLocal = await fetch('/tasas');
+                if (respuestaLocal.ok) {
+                    const datos = await respuestaLocal.json();
+                    precioBCV = datos.bcv;
+                    precioBinance = datos.binance;
+                } else {
+                    throw new Error("El backend falló");
+                }
+            } catch (errorBackend) {
+                console.warn("Fallo en servidor local. Activando motor directo en el navegador...");
                 
-                if (!respuesta.ok) throw new Error("Error en el servidor local");
-                
-                const datos = await respuesta.json();
-                const precioBCV = datos.bcv;
-                const precioBinance = datos.binance;
-                
+                // INTENTO 2: Si Cloudflare está bloqueado, el navegador hace la conexión directa como Plan B
+                try {
+                    const [resBCV, resBinance] = await Promise.all([
+                        fetch('https://ve.dolarapi.com/v1/dolares/oficial'),
+                        fetch('https://ve.dolarapi.com/v1/dolares/binance')
+                    ]);
+                    
+                    if (resBCV.ok && resBinance.ok) {
+                        const dataBCV = await resBCV.json();
+                        const dataBinance = await resBinance.json();
+                        precioBCV = dataBCV.promedio;
+                        precioBinance = dataBinance.promedio;
+                    }
+                } catch (errorFrontend) {
+                    console.error("Ambos motores caídos por inestabilidad de red.");
+                }
+            }
+
+            // Muestra los datos finales si cualquiera de los dos motores tuvo éxito
+            if (precioBCV && precioBinance) {
                 const ahora = new Date();
                 const horaStr = ahora.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
                 const fechaStr = ahora.toLocaleDateString('es-VE', { day: '2-digit', month: 'short' });
@@ -257,10 +284,8 @@
                 `;
 
                 cintillo.innerHTML = contenido + `<div class="ticker-item" style="margin-left: 100px;"></div>` + contenido;
-                
-            } catch (error) {
-                console.error("Fallo interno:", error);
-                cintillo.innerHTML = `<div class="ticker-item">⚠️ Error al sincronizar. Verificando servidor local...</div>`;
+            } else {
+                cintillo.innerHTML = `<div class="ticker-item">⚠️ Red inestable en este momento. Reintentando de forma automática...</div>`;
             }
         }
 
