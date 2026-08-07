@@ -156,6 +156,10 @@
             align-items: center;
             max-width: 300px;
             margin: 0 auto;
+            
+            /* --- CORRECCIÓN DE TAMAÑO --- */
+            height: 100%; 
+            box-sizing: border-box;
         }
 
         .tool-card:hover {
@@ -192,6 +196,9 @@
             color: #718096;
             margin: 0;
             line-height: 1.5;
+            
+            /* --- CORRECCIÓN DE ALINEACIÓN DE TEXTO --- */
+            flex-grow: 1; 
         }
     </style>
 </head>
@@ -248,7 +255,7 @@
                 🏖️
             </div>
             <h2 class="tool-title">Vacaciones</h2>
-            <p class="tool-desc">Cálculo de pago de vacaciones</p>
+            <p class="tool-desc">Cálculo pago vacaciones</p>
         </a>
     </div>
 
