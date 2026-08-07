@@ -130,14 +130,12 @@
             font-size: 1.1rem;
         }
 
-        /* --- CUADRÍCULA MAESTRA CORREGIDA --- */
         .hub-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            grid-auto-rows: 1fr; /* Esta orden iguala las alturas de todas las cajas */
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2.5rem;
             width: 100%;
-            max-width: 1100px;
+            max-width: 1000px;
             justify-content: center;
             z-index: 1;
         }
@@ -158,8 +156,6 @@
             align-items: center;
             max-width: 300px;
             margin: 0 auto;
-            height: 100%; /* Ocupa todo el alto de su fila */
-            box-sizing: border-box;
         }
 
         .tool-card:hover {
@@ -196,7 +192,6 @@
             color: #718096;
             margin: 0;
             line-height: 1.5;
-            flex-grow: 1; /* Empuja el contenido para llenar espacios vacíos */
         }
     </style>
 </head>
@@ -253,7 +248,7 @@
                 🏖️
             </div>
             <h2 class="tool-title">Vacaciones</h2>
-            <p class="tool-desc">Cálculo pago vacaciones.</p>
+            <p class="tool-desc">Calculo de pago de vacaciones</p>
         </a>
     </div>
 
