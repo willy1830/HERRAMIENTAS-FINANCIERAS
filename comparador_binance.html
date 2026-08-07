@@ -60,7 +60,7 @@
         .btn-volver {
             display: inline-block;
             margin-bottom: 1rem;
-            color: #d97706; /* Tono dorado/naranja */
+            color: #d97706;
             text-decoration: none;
             font-weight: bold;
             background: rgba(255,255,255,0.8);
@@ -137,6 +137,7 @@
             border: 1px solid #fde68a;
             padding: 10px;
             border-radius: 8px;
+            grid-column: 1 / -1; /* Ocupa todo el ancho al final de los inputs */
         }
 
         .tasa-item {
@@ -261,6 +262,12 @@
             bottom: -20px;
             color: #e53e3e;
         }
+        
+        .flow-arrow-text.neutral {
+            top: auto;
+            bottom: -20px;
+            color: #3182ce;
+        }
 
         /* Disclaimer de Hipótesis */
         .disclaimer {
@@ -276,8 +283,8 @@
             .flow-arrow-container { width: 2px; height: 40px; flex-grow: 0; }
             .flow-arrow-line { width: 2px; height: 100%; }
             .flow-arrow-line::after { top: auto; bottom: 0; right: -4px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid #cbd5e0; border-bottom: none; }
-            .flow-arrow-text { top: 50%; transform: translateY(-50%) translateX(25px); }
-            .flow-arrow-text.down { bottom: auto; top: 50%; transform: translateY(-50%) translateX(-25px); }
+            .flow-arrow-text { top: 50%; transform: translateY(-50%) translateX(35px); }
+            .flow-arrow-text.down, .flow-arrow-text.neutral { bottom: auto; top: 50%; transform: translateY(-50%) translateX(-35px); }
         }
     </style>
 </head>
@@ -296,6 +303,7 @@
 
     <div class="card">
         
+        <!-- PANEL DE CONTROL AJUSTABLE -->
         <div class="control-panel">
             <div class="input-group">
                 <label>Monto Recibido (Bs):</label>
@@ -303,18 +311,24 @@
             </div>
             
             <div class="input-group">
-                <label>Comisión Banco (PM/Transf) %:</label>
+                <label>Comisión Banco %:</label>
                 <input type="number" id="input-com-banco" value="0.30" step="0.01" oninput="calcularFlujos()">
             </div>
 
             <div class="input-group">
-                <label>Comisión BPAY (Binance) %:</label>
+                <label>Comisión BPAY %:</label>
                 <input type="number" id="input-com-bpay" value="1.50" step="0.01" oninput="calcularFlujos()">
+            </div>
+
+            <!-- Neva casilla para la tasa P2P de Zinli -->
+            <div class="input-group">
+                <label>Tasa P2P (Zinli → USDT):</label>
+                <input type="number" id="input-tasa-zinli" value="1.025" step="0.001" oninput="calcularFlujos()">
             </div>
             
             <div class="tasas-info">
                 <div class="tasa-item">
-                    <span>Tasa BCV (Referencial)</span>
+                    <span>Tasa BCV (Mercantil a Zinli)</span>
                     <strong id="tasa-bcv">...</strong>
                 </div>
                 <div class="tasa-item">
@@ -329,24 +343,27 @@
         </div>
 
         <p class="disclaimer">
-            <strong>Nota de cálculo:</strong> Las tasas P2P y BCV se obtienen en tiempo real. Las comisiones bancarias y de BPAY están configuradas con valores asumidos por defecto (0.3% y 1.5% respectivamente). Puedes modificar estas casillas para que el cálculo se ajuste a la tarifa exacta de tu banco al momento de la operación.
+            <strong>Nota operativa:</strong> Las rutas bancarias calculan las retenciones de Pago Móvil y depósito vía BPAY en Binance. La ruta de <strong>Mercantil → Zinli</strong> se calcula asumiendo una recarga/envío a Tasa BCV con 0% de comisión del banco, aplicando únicamente el tipo de cambio P2P de Zinli introducido en el panel.
         </p>
 
     </div>
 
     <script>
         let tasaBaseGlobal = 0;
+        let tasaBCVGlobal = 0;
 
         async function inicializar() {
             try {
+                // Obtenemos BCV Oficial
                 const resBCV = await fetch('https://open.er-api.com/v6/latest/USD');
                 const dataBCV = await resBCV.json();
-                document.getElementById('tasa-bcv').innerText = dataBCV.rates.VES.toFixed(2);
+                tasaBCVGlobal = dataBCV.rates.VES;
+                document.getElementById('tasa-bcv').innerText = tasaBCVGlobal.toFixed(2);
 
+                // Obtenemos P2P General Binance
                 const resBinance = await fetch('https://criptoya.com/api/binancep2p/usdt/ves');
                 const dataBinance = await resBinance.json();
                 tasaBaseGlobal = dataBinance.ask;
-                
                 document.getElementById('tasa-global').innerText = tasaBaseGlobal.toFixed(2);
 
                 calcularFlujos();
@@ -356,15 +373,16 @@
         }
 
         function calcularFlujos() {
-            if (tasaBaseGlobal === 0) return;
+            if (tasaBaseGlobal === 0 || tasaBCVGlobal === 0) return;
 
             const montoOriginal = parseFloat(document.getElementById('input-bs').value) || 0;
             const comisionBancoPct = parseFloat(document.getElementById('input-com-banco').value) || 0;
             const comisionBpayPct = parseFloat(document.getElementById('input-com-bpay').value) || 0;
+            const tasaZinliP2P = parseFloat(document.getElementById('input-tasa-zinli').value) || 1.025;
 
             let rutasCalculadas = [];
 
-            // 1. RUTAS ESTÁNDAR VÍA BPAY (Pago Móvil/Transferencia directa a Binance Fiat)
+            // 1. RUTAS ESTÁNDAR VÍA BPAY (Bancos Nacionales)
             const bancosDirectos = [
                 { id: 'bdv', nombre: 'Bco. Venezuela', diferencialTasa: -0.05 },
                 { id: 'bnc', nombre: 'BNC', diferencialTasa: 0.10 },
@@ -375,14 +393,14 @@
             bancosDirectos.forEach(banco => {
                 let tasaAplicada = (tasaBaseGlobal + banco.diferencialTasa).toFixed(2);
                 
-                // Restamos la comisión del banco al monto en Bs
+                // Restamos la comisión del banco (Pago móvil / Transf)
                 let descuentoBancoBs = montoOriginal * (comisionBancoPct / 100);
                 let montoNetoBs = montoOriginal - descuentoBancoBs;
                 
-                // Convertimos a USDT usando la tasa BPAY
+                // Convertimos a USDT
                 let usdtBruto = montoNetoBs / parseFloat(tasaAplicada);
                 
-                // Restamos la comisión de Binance BPAY en USDT
+                // Restamos la comisión BPAY
                 let descuentoBpayUSDT = usdtBruto * (comisionBpayPct / 100);
                 let usdtFinal = usdtBruto - descuentoBpayUSDT;
 
@@ -396,7 +414,7 @@
                             <div class="node">
                                 <span class="node-title">${banco.nombre}</span>
                                 <span class="node-amount">${montoOriginal.toLocaleString('es-VE')} Bs</span>
-                                <span class="node-sub">Inicio</span>
+                                <span class="node-sub">Monto Inicial</span>
                             </div>
 
                             <div class="flow-arrow-container">
@@ -407,7 +425,7 @@
                             <div class="node">
                                 <span class="node-title">Red BPAY</span>
                                 <span class="node-amount">${montoNetoBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} Bs</span>
-                                <span class="node-sub">Tasa: ${tasaAplicada}</span>
+                                <span class="node-sub">Tasa Venta: ${tasaAplicada}</span>
                             </div>
 
                             <div class="flow-arrow-container">
@@ -425,12 +443,13 @@
                 });
             });
 
-            // 2. RUTA ESPECIAL ZINLI (No usa BPAY, usa recarga externa + P2P)
-            // Hipótesis: Mercantil a Zinli tiene sobreprecio aprox 2.5% sobre la base. Zinli a Binance cuesta 1.025 P2P.
-            let tasaZinliEstimada = (tasaBaseGlobal * 1.025).toFixed(2);
-            let dolaresZinli = montoOriginal / parseFloat(tasaZinliEstimada);
-            let tasaP2PZinli = 1.025; // 1.025 Zinli por 1 USDT
-            let usdtZinliFinal = dolaresZinli / tasaP2PZinli;
+            // 2. RUTA CORREGIDA: MERCANTIL -> ZINLI -> BINANCE
+            // Operación con 0% de comisión. 
+            // Conversión de Bs a USD usando la Tasa BCV.
+            let dolaresZinli = montoOriginal / tasaBCVGlobal;
+            
+            // Envío de Zinli a Binance USDT usando la tasa P2P introducida.
+            let usdtZinliFinal = dolaresZinli / tasaZinliP2P;
 
             rutasCalculadas.push({
                 id: 'mercantil_zinli',
@@ -442,22 +461,22 @@
                         <div class="node">
                             <span class="node-title">Mercantil</span>
                             <span class="node-amount">${montoOriginal.toLocaleString('es-VE')} Bs</span>
-                            <span class="node-sub">Inicio</span>
+                            <span class="node-sub">Monto Inicial</span>
                         </div>
 
                         <div class="flow-arrow-container">
-                            <span class="flow-arrow-text">Compra Saldo</span>
+                            <span class="flow-arrow-text neutral">0% Comisión</span>
                             <div class="flow-arrow-line"></div>
                         </div>
 
                         <div class="node" style="border-color: #ff0050; background: #fff1f2;">
                             <span class="node-title" style="color: #be123c;">App Zinli</span>
                             <span class="node-amount" style="color: #e11d48;">${dolaresZinli.toFixed(2)} $</span>
-                            <span class="node-sub">Tasa: ${tasaZinliEstimada}</span>
+                            <span class="node-sub">Cambio a Tasa BCV</span>
                         </div>
 
                         <div class="flow-arrow-container">
-                            <span class="flow-arrow-text">P2P (Tasa ${tasaP2PZinli})</span>
+                            <span class="flow-arrow-text down">P2P (Tasa ${tasaZinliP2P})</span>
                             <div class="flow-arrow-line"></div>
                         </div>
 
@@ -470,23 +489,25 @@
                 `
             });
 
-            // Renderizar y Marcar el mejor
+            // Renderizar y Marcar la mejor opción
             let container = document.getElementById('flow-container');
             container.innerHTML = '';
             
-            // Ordenar de mayor USDT a menor
+            // Ordenar de mayor USDT resultante a menor
             rutasCalculadas.sort((a, b) => b.usdtFinal - a.usdtFinal);
 
             rutasCalculadas.forEach(ruta => {
                 container.innerHTML += ruta.html;
             });
 
-            // Activar medalla en la mejor ruta
+            // Encender la medalla visual en la mejor ruta del mercado actual
             const mejorRutaId = rutasCalculadas[0].id;
             document.getElementById(`row-${mejorRutaId}`).classList.add('best-route');
         }
 
         inicializar();
+        
+        // Auto refrescar precios cada 5 minutos
         setInterval(inicializar, 300000);
     </script>
 </body>
