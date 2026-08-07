@@ -7,172 +7,398 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
             margin: 0;
-            padding: 2rem 1rem;
+            padding: 2rem; 
             color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .back-btn {
-            display: inline-flex;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            color: #3182ce;
-            text-decoration: none;
-            font-weight: 600;
-            margin-bottom: 2rem;
-            background: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: background 0.2s;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #f8fafc; 
         }
-        .back-btn:hover {
-            background: #ebf8ff;
+
+        /* --- Animación de Ondas Estilo PlayStation --- */
+        .ps-waves {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1; 
         }
+
+        .wave {
+            position: absolute;
+            width: 150vw;
+            height: 150vw;
+            border-radius: 43% 47% 40% 45%; 
+            animation: drift 25s infinite linear;
+            opacity: 0.4;
+        }
+
+        .wave.-one { background: #e2e8f0; top: 40vh; left: -25vw; animation-duration: 30s; }
+        .wave.-two { background: #ffffff; top: 45vh; left: -20vw; animation-duration: 35s; opacity: 0.8; box-shadow: 0 0 40px rgba(0,0,0,0.02); }
+        .wave.-three { background: #e0f2fe; top: 50vh; left: -30vw; animation-duration: 40s; opacity: 0.5; }
+
+        @keyframes drift { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- Contenedores y Tarjetas --- */
         .header {
             text-align: center;
             margin-bottom: 2rem;
+            z-index: 1; 
         }
+        
         .header h1 {
             color: #1a365d;
-            margin: 0 0 0.5rem 0;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
         }
-        .header p {
-            color: #4a5568;
-            margin: 0;
-        }
-        .month-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid #3182ce;
-        }
-        .month-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #2d3748;
-            margin-top: 0;
+
+        .btn-volver {
+            display: inline-block;
             margin-bottom: 1rem;
-            text-transform: uppercase;
-            border-bottom: 2px solid #edf2f7;
-            padding-bottom: 0.5rem;
-        }
-        .payment-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            font-size: 1.05rem;
-            color: #4a5568;
-        }
-        .payment-row:not(:last-child) {
-            border-bottom: 1px solid #edf2f7;
-        }
-        .special-payment {
-            display: flex;
-            justify-content: space-between;
-            background-color: #ebf8ff;
-            color: #2b6cb0;
+            color: #3182ce;
+            text-decoration: none;
             font-weight: bold;
-            padding: 1rem;
+            background: rgba(255,255,255,0.8);
+            padding: 8px 16px;
             border-radius: 8px;
-            margin-top: 0.5rem;
-            border: 1px solid #bee3f8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s;
         }
-        .date {
+
+        .btn-volver:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); 
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* --- Selector Principal (Solo 2 Opciones) --- */
+        .toggle-container {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 1.05rem;
             font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #ffffff;
+            color: #3182ce;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* --- Dashboard Integrado (Sueldo, Tebca, Utilidades) --- */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .dash-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            text-align: left;
+        }
+
+        .dash-item.principal {
+            border-left: 5px solid #3182ce;
+            background: #f0f7ff;
+        }
+        
+        .dash-item.secundario {
+            border-left: 5px solid #48bb78;
+        }
+
+        .dash-item.anual {
+            border-left: 5px solid #ecc94b;
+        }
+
+        .dash-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #718096;
+            margin-bottom: 2px;
+        }
+
+        .dash-date {
+            font-size: 1.15rem;
+            font-weight: 700;
             color: #1a365d;
+        }
+
+        .dash-badge {
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        /* Colores de los tags (badges) */
+        .bg-blue { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
+        .bg-green { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .bg-yellow { background: #fffff0; color: #975a16; border: 1px solid #fef08a; }
+
+        /* --- Proyecciones Futuras --- */
+        .divisor {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 1.5rem 0;
+            width: 100%;
+        }
+
+        .futuros-titulo {
+            font-size: 0.95rem;
+            color: #718096;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .lista-pagos {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .pago-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pago-item .fecha {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        .pago-item .dias {
+            color: #718096;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Botón para regresar al Hub -->
-        <a href="index.html" class="back-btn">← Volver al Portal</a>
+    <div class="ps-waves">
+        <div class="wave -one"></div>
+        <div class="wave -two"></div>
+        <div class="wave -three"></div>
+    </div>
 
-        <div class="header">
-            <h1>Calendario de Pagos</h1>
-            <p>Cronograma oficial del segundo semestre</p>
+    <div class="header">
+        <a href="index.html" class="btn-volver">← Volver al Hub</a>
+        <h1>Cronograma de Pagos</h1>
+    </div>
+
+    <div class="card">
+        
+        <!-- Pestañas Principales -->
+        <div class="toggle-container">
+            <button class="toggle-btn active" id="btn-mensual" onclick="cambiarNomina('mensual')">Nómina Mensual</button>
+            <button class="toggle-btn" id="btn-semanal" onclick="cambiarNomina('semanal')">Nómina Semanal</button>
         </div>
 
-        <div class="month-card">
-            <h2 class="month-title">Julio</h2>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Martes 28</span>
+        <!-- Dashboard Integrado -->
+        <div class="dashboard-grid">
+            
+            <!-- Bloque de Sueldo -->
+            <div class="dash-item principal">
+                <div class="dash-info">
+                    <span class="dash-title">💵 Próximo Sueldo</span>
+                    <span class="dash-date" id="sueldo-fecha">Calculando...</span>
+                </div>
+                <span class="dash-badge bg-blue" id="sueldo-badge">--</span>
             </div>
+
+            <!-- Bloque de Tebca -->
+            <div class="dash-item secundario">
+                <div class="dash-info">
+                    <span class="dash-title">💳 Bono Tebca</span>
+                    <span class="dash-date" id="tebca-fecha">Calculando...</span>
+                </div>
+                <span class="dash-badge bg-green" id="tebca-badge">--</span>
+            </div>
+
+            <!-- Bloque de Utilidades -->
+            <div class="dash-item anual">
+                <div class="dash-info">
+                    <span class="dash-title">🎄 Utilidades Anuales</span>
+                    <span class="dash-date" id="utilidades-fecha">Calculando...</span>
+                </div>
+                <span class="dash-badge bg-yellow" id="utilidades-badge">--</span>
+            </div>
+
         </div>
 
-        <div class="month-card">
-            <h2 class="month-title">Agosto</h2>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Jueves 13</span>
-            </div>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Viernes 28</span>
-            </div>
-        </div>
+        <div class="divisor"></div>
 
-        <div class="month-card">
-            <h2 class="month-title">Septiembre</h2>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Viernes 11</span>
-            </div>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Viernes 25</span>
-            </div>
-        </div>
-
-        <div class="month-card">
-            <h2 class="month-title">Octubre</h2>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Viernes 9</span>
-            </div>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Viernes 23</span>
-            </div>
-        </div>
-
-        <div class="month-card">
-            <h2 class="month-title">Noviembre</h2>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Viernes 13</span>
-            </div>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Jueves 26</span>
-            </div>
-            <div class="special-payment">
-                <span>🌟 Utilidades</span>
-                <span class="date">Viernes 27</span>
-            </div>
-        </div>
-
-        <div class="month-card">
-            <h2 class="month-title">Diciembre</h2>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Viernes 11</span>
-            </div>
-            <div class="payment-row">
-                <span>Quincena</span>
-                <span class="date">Miércoles 23</span>
-            </div>
+        <!-- Proyección exclusiva de sueldos futuros -->
+        <div class="futuros-titulo">Proyección de Sueldo a futuro</div>
+        <div class="lista-pagos" id="lista-futuros">
+            <!-- Se generará por JS -->
         </div>
 
     </div>
 
+    <script>
+        const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+        function calcularDiasFaltantes(fechaObjetivo) {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const objetivo = new Date(fechaObjetivo);
+            objetivo.setHours(0, 0, 0, 0);
+            const diferencia = objetivo.getTime() - hoy.getTime();
+            return Math.ceil(diferencia / (1000 * 3600 * 24));
+        }
+
+        function formatoBadge(dias, esUtilidad = false) {
+            if (dias === 0) return "💸 HOY";
+            if (dias === 1) return "⏳ Mañana";
+            if (esUtilidad && dias > 30) return `~${(dias / 30).toFixed(1)} meses`;
+            return `${dias} días`;
+        }
+
+        function cambiarNomina(tipo) {
+            // Cambio de botones
+            document.getElementById('btn-mensual').classList.remove('active');
+            document.getElementById('btn-semanal').classList.remove('active');
+            document.getElementById(`btn-${tipo}`).classList.add('active');
+
+            const hoy = new Date();
+            
+            // --- 1. CALCULAR SUELDO ---
+            let proximoSueldo = new Date();
+            if (tipo === 'mensual') {
+                const dia = hoy.getDate();
+                const ultimo = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+                if (dia <= 15) {
+                    proximoSueldo = new Date(hoy.getFullYear(), hoy.getMonth(), 15);
+                } else if (dia <= ultimo) {
+                    proximoSueldo = new Date(hoy.getFullYear(), hoy.getMonth(), ultimo);
+                }
+            } else {
+                const diaSemana = hoy.getDay();
+                let dif = (4 - diaSemana + 7) % 7;
+                if (dif === 0 && hoy.getHours() > 18) dif = 7;
+                proximoSueldo.setDate(hoy.getDate() + dif);
+            }
+
+            const dfSueldo = calcularDiasFaltantes(proximoSueldo);
+            document.getElementById('sueldo-fecha').innerText = `${dias[proximoSueldo.getDay()]}, ${proximoSueldo.getDate()} ${meses[proximoSueldo.getMonth()]}`;
+            document.getElementById('sueldo-badge').innerText = formatoBadge(dfSueldo);
+            document.getElementById('sueldo-badge').className = dfSueldo === 0 ? "dash-badge bg-green" : "dash-badge bg-blue";
+
+            // --- 2. CALCULAR TEBCA (Siempre Jueves) ---
+            let proximaTebca = new Date();
+            let difTebca = (4 - hoy.getDay() + 7) % 7;
+            if (difTebca === 0 && hoy.getHours() > 18) difTebca = 7;
+            proximaTebca.setDate(hoy.getDate() + difTebca);
+            
+            const dfTebca = calcularDiasFaltantes(proximaTebca);
+            document.getElementById('tebca-fecha').innerText = `Jueves, ${proximaTebca.getDate()} ${meses[proximaTebca.getMonth()]}`;
+            document.getElementById('tebca-badge').innerText = formatoBadge(dfTebca);
+            document.getElementById('tebca-badge').className = dfTebca === 0 ? "dash-badge bg-green" : (tipo==='mensual' ? "dash-badge bg-green" : "dash-badge bg-blue"); 
+
+            // --- 3. CALCULAR UTILIDADES (15 de Noviembre) ---
+            let proximasUtilidades = new Date(hoy.getFullYear(), 10, 15); // Noviembre es mes 10
+            if (hoy > proximasUtilidades) {
+                proximasUtilidades = new Date(hoy.getFullYear() + 1, 10, 15);
+            }
+            const dfUtil = calcularDiasFaltantes(proximasUtilidades);
+            document.getElementById('utilidades-fecha').innerText = `15 Nov ${proximasUtilidades.getFullYear()}`;
+            document.getElementById('utilidades-badge').innerText = formatoBadge(dfUtil, true);
+
+            // --- 4. PROYECCIÓN DE SUELDOS FUTUROS (Siguientes 4) ---
+            let futurosPagos = [];
+            let fechaIter = new Date(proximoSueldo);
+
+            for (let i = 0; i < 4; i++) {
+                if (tipo === 'semanal') {
+                    fechaIter.setDate(fechaIter.getDate() + 7);
+                    futurosPagos.push(new Date(fechaIter));
+                } else {
+                    let d = fechaIter.getDate();
+                    let m = fechaIter.getMonth();
+                    let a = fechaIter.getFullYear();
+                    if (d === 15) {
+                        let ult = new Date(a, m + 1, 0).getDate();
+                        fechaIter = new Date(a, m, ult);
+                    } else {
+                        fechaIter = new Date(a, m + 1, 15);
+                    }
+                    futurosPagos.push(new Date(fechaIter));
+                }
+            }
+
+            let htmlFuturos = '';
+            futurosPagos.forEach(pago => {
+                const df = calcularDiasFaltantes(pago);
+                const txt = `${dias[pago.getDay()]}, ${pago.getDate()} ${meses[pago.getMonth()]}`;
+                htmlFuturos += `
+                    <div class="pago-item">
+                        <span class="fecha">📅 ${txt}</span>
+                        <span class="dias">En ${df} días</span>
+                    </div>
+                `;
+            });
+            document.getElementById('lista-futuros').innerHTML = htmlFuturos;
+        }
+
+        window.onload = () => cambiarNomina('mensual');
+
+    </script>
 </body>
 </html>
