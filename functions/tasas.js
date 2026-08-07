@@ -1,18 +1,18 @@
 export async function onRequest() {
     try {
-        // El servidor de Cloudflare hace la búsqueda (cero bloqueos de CANTV/Inter o navegadores)
-        const [resBCV, resBinance] = await Promise.all([
-            fetch('https://ve.dolarapi.com/v1/dolares/oficial'),
-            fetch('https://ve.dolarapi.com/v1/dolares/binance')
-        ]);
+        // Usamos PyDolarVenezuela, que no bloquea las IPs de los servidores de Cloudflare
+        const respuesta = await fetch('https://pydolarvenezuela-api.vercel.app/api/v1/dollar');
+        
+        if (!respuesta.ok) {
+            throw new Error('Error de conexión con la API externa');
+        }
 
-        const dataBCV = await resBCV.json();
-        const dataBinance = await resBinance.json();
+        const datos = await respuesta.json();
 
         // Empaquetamos los datos limpios
         const tasas = {
-            bcv: dataBCV.promedio,
-            binance: dataBinance.promedio
+            bcv: datos.monitors.bcv.price,
+            binance: datos.monitors.binance.price
         };
 
         // Se los enviamos a tu portal web
@@ -24,6 +24,13 @@ export async function onRequest() {
         });
 
     } catch (error) {
-        return new Response(JSON.stringify({ error: "No se pudieron obtener las tasas" }), { status: 500 });
+        // Devolvemos el error detallado para que el frontend lo procese
+        return new Response(JSON.stringify({ error: error.message }), { 
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        });
     }
 }
