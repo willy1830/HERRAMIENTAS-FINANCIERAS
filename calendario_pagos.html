@@ -116,7 +116,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        /* --- Dashboard Integrado (Sueldo, Tebca, Utilidades) --- */
+        /* --- Dashboard Integrado --- */
         .dashboard-grid {
             display: flex;
             flex-direction: column;
@@ -173,9 +173,9 @@
             font-weight: 700;
             padding: 6px 12px;
             border-radius: 20px;
+            white-space: nowrap;
         }
 
-        /* Colores de los tags (badges) */
         .bg-blue { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
         .bg-green { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
         .bg-yellow { background: #fffff0; color: #975a16; border: 1px solid #fef08a; }
@@ -243,16 +243,12 @@
 
     <div class="card">
         
-        <!-- Pestañas Principales -->
         <div class="toggle-container">
             <button class="toggle-btn active" id="btn-mensual" onclick="cambiarNomina('mensual')">Nómina Mensual</button>
             <button class="toggle-btn" id="btn-semanal" onclick="cambiarNomina('semanal')">Nómina Semanal</button>
         </div>
 
-        <!-- Dashboard Integrado -->
         <div class="dashboard-grid">
-            
-            <!-- Bloque de Sueldo -->
             <div class="dash-item principal">
                 <div class="dash-info">
                     <span class="dash-title">💵 Próximo Sueldo</span>
@@ -261,7 +257,6 @@
                 <span class="dash-badge bg-blue" id="sueldo-badge">--</span>
             </div>
 
-            <!-- Bloque de Tebca -->
             <div class="dash-item secundario">
                 <div class="dash-info">
                     <span class="dash-title">💳 Bono Tebca</span>
@@ -270,7 +265,6 @@
                 <span class="dash-badge bg-green" id="tebca-badge">--</span>
             </div>
 
-            <!-- Bloque de Utilidades -->
             <div class="dash-item anual">
                 <div class="dash-info">
                     <span class="dash-title">🎄 Utilidades Anuales</span>
@@ -278,15 +272,12 @@
                 </div>
                 <span class="dash-badge bg-yellow" id="utilidades-badge">--</span>
             </div>
-
         </div>
 
         <div class="divisor"></div>
 
-        <!-- Proyección exclusiva de sueldos futuros -->
         <div class="futuros-titulo">Proyección de Sueldo a futuro</div>
         <div class="lista-pagos" id="lista-futuros">
-            <!-- Se generará por JS -->
         </div>
 
     </div>
@@ -295,6 +286,7 @@
         const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
         const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
+        // Motor para calcular días faltantes
         function calcularDiasFaltantes(fechaObjetivo) {
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
@@ -302,6 +294,19 @@
             objetivo.setHours(0, 0, 0, 0);
             const diferencia = objetivo.getTime() - hoy.getTime();
             return Math.ceil(diferencia / (1000 * 3600 * 24));
+        }
+
+        // --- EL NUEVO MOTOR: Ajusta los fines de semana al viernes ---
+        function diaHabilBancario(fecha) {
+            let fechaAjustada = new Date(fecha);
+            if (fechaAjustada.getDay() === 6) {
+                // Si es Sábado, resta 1 día (Viernes)
+                fechaAjustada.setDate(fechaAjustada.getDate() - 1);
+            } else if (fechaAjustada.getDay() === 0) {
+                // Si es Domingo, resta 2 días (Viernes)
+                fechaAjustada.setDate(fechaAjustada.getDate() - 2);
+            }
+            return fechaAjustada;
         }
 
         function formatoBadge(dias, esUtilidad = false) {
@@ -312,27 +317,43 @@
         }
 
         function cambiarNomina(tipo) {
-            // Cambio de botones
             document.getElementById('btn-mensual').classList.remove('active');
             document.getElementById('btn-semanal').classList.remove('active');
             document.getElementById(`btn-${tipo}`).classList.add('active');
 
             const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0); // Normalizar hora para comparaciones exactas
             
             // --- 1. CALCULAR SUELDO ---
             let proximoSueldo = new Date();
             if (tipo === 'mensual') {
-                const dia = hoy.getDate();
-                const ultimo = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
-                if (dia <= 15) {
-                    proximoSueldo = new Date(hoy.getFullYear(), hoy.getMonth(), 15);
-                } else if (dia <= ultimo) {
-                    proximoSueldo = new Date(hoy.getFullYear(), hoy.getMonth(), ultimo);
+                const anio = hoy.getFullYear();
+                const mes = hoy.getMonth();
+                
+                // Calculamos las fechas crudas
+                let fechaQuincena = new Date(anio, mes, 15);
+                let fechaFinMes = new Date(anio, mes + 1, 0); // Último día del mes
+                let fechaProxQuincena = new Date(anio, mes + 1, 15);
+                
+                // Las ajustamos a días hábiles bancarios
+                fechaQuincena = diaHabilBancario(fechaQuincena);
+                fechaFinMes = diaHabilBancario(fechaFinMes);
+                fechaProxQuincena = diaHabilBancario(fechaProxQuincena);
+                
+                // Evaluamos cuál es el pago que viene
+                if (hoy <= fechaQuincena) {
+                    proximoSueldo = fechaQuincena;
+                } else if (hoy <= fechaFinMes) {
+                    proximoSueldo = fechaFinMes;
+                } else {
+                    proximoSueldo = fechaProxQuincena;
                 }
             } else {
+                // Nómina semanal (Jueves). No suele requerir ajuste de fin de semana, pero igual se evalúa.
                 const diaSemana = hoy.getDay();
                 let dif = (4 - diaSemana + 7) % 7;
-                if (dif === 0 && hoy.getHours() > 18) dif = 7;
+                // Si ya pasó el cierre del jueves en la noche, proyecta el siguiente
+                if (dif === 0 && new Date().getHours() > 18) dif = 7;
                 proximoSueldo.setDate(hoy.getDate() + dif);
             }
 
@@ -344,7 +365,7 @@
             // --- 2. CALCULAR TEBCA (Siempre Jueves) ---
             let proximaTebca = new Date();
             let difTebca = (4 - hoy.getDay() + 7) % 7;
-            if (difTebca === 0 && hoy.getHours() > 18) difTebca = 7;
+            if (difTebca === 0 && new Date().getHours() > 18) difTebca = 7;
             proximaTebca.setDate(hoy.getDate() + difTebca);
             
             const dfTebca = calcularDiasFaltantes(proximaTebca);
@@ -353,12 +374,15 @@
             document.getElementById('tebca-badge').className = dfTebca === 0 ? "dash-badge bg-green" : (tipo==='mensual' ? "dash-badge bg-green" : "dash-badge bg-blue"); 
 
             // --- 3. CALCULAR UTILIDADES (15 de Noviembre) ---
-            let proximasUtilidades = new Date(hoy.getFullYear(), 10, 15); // Noviembre es mes 10
-            if (hoy > proximasUtilidades) {
-                proximasUtilidades = new Date(hoy.getFullYear() + 1, 10, 15);
+            let proximasUtilidadesC = new Date(hoy.getFullYear(), 10, 15); // Noviembre es mes 10
+            let utilidadesAjustadas = diaHabilBancario(proximasUtilidadesC);
+            
+            if (hoy > utilidadesAjustadas) {
+                proximasUtilidadesC = new Date(hoy.getFullYear() + 1, 10, 15);
+                utilidadesAjustadas = diaHabilBancario(proximasUtilidadesC);
             }
-            const dfUtil = calcularDiasFaltantes(proximasUtilidades);
-            document.getElementById('utilidades-fecha').innerText = `15 Nov ${proximasUtilidades.getFullYear()}`;
+            const dfUtil = calcularDiasFaltantes(utilidadesAjustadas);
+            document.getElementById('utilidades-fecha').innerText = `${utilidadesAjustadas.getDate()} Nov ${utilidadesAjustadas.getFullYear()}`;
             document.getElementById('utilidades-badge').innerText = formatoBadge(dfUtil, true);
 
             // --- 4. PROYECCIÓN DE SUELDOS FUTUROS (Siguientes 4) ---
@@ -373,12 +397,16 @@
                     let d = fechaIter.getDate();
                     let m = fechaIter.getMonth();
                     let a = fechaIter.getFullYear();
-                    if (d === 15) {
-                        let ult = new Date(a, m + 1, 0).getDate();
-                        fechaIter = new Date(a, m, ult);
+                    let sigPagoC;
+                    
+                    if (d <= 15) {
+                        // Si estábamos en la quincena, el próximo es el fin de mes
+                        sigPagoC = new Date(a, m + 1, 0); 
                     } else {
-                        fechaIter = new Date(a, m + 1, 15);
+                        // Si estábamos a fin de mes, el próximo es la quincena del mes siguiente
+                        sigPagoC = new Date(a, m + 1, 15);
                     }
+                    fechaIter = diaHabilBancario(sigPagoC);
                     futurosPagos.push(new Date(fechaIter));
                 }
             }
