@@ -136,37 +136,13 @@
             text-align: left;
         }
 
-        .dash-item.principal {
-            border-left: 5px solid #3182ce;
-            background: #f0f7ff;
-        }
-        
-        .dash-item.secundario {
-            border-left: 5px solid #48bb78;
-        }
+        .dash-item.principal { border-left: 5px solid #3182ce; background: #f0f7ff; }
+        .dash-item.secundario { border-left: 5px solid #48bb78; }
+        .dash-item.anual { border-left: 5px solid #ecc94b; }
 
-        .dash-item.anual {
-            border-left: 5px solid #ecc94b;
-        }
-
-        .dash-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .dash-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: #718096;
-            margin-bottom: 2px;
-        }
-
-        .dash-date {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #1a365d;
-        }
+        .dash-info { display: flex; flex-direction: column; }
+        .dash-title { font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: #718096; margin-bottom: 2px; }
+        .dash-date { font-size: 1.15rem; font-weight: 700; color: #1a365d; }
 
         .dash-badge {
             font-size: 0.9rem;
@@ -181,51 +157,13 @@
         .bg-yellow { background: #fffff0; color: #975a16; border: 1px solid #fef08a; }
 
         /* --- Proyecciones Futuras --- */
-        .divisor {
-            height: 1px;
-            background: #e2e8f0;
-            margin: 1.5rem 0;
-            width: 100%;
-        }
-
-        .futuros-titulo {
-            font-size: 0.95rem;
-            color: #718096;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-align: left;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .lista-pagos {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .pago-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .pago-item .fecha {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 0.95rem;
-        }
-
-        .pago-item .dias {
-            color: #718096;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
+        .divisor { height: 1px; background: #e2e8f0; margin: 1.5rem 0; width: 100%; }
+        .futuros-titulo { font-size: 0.95rem; color: #718096; font-weight: 700; margin-bottom: 1rem; text-align: left; text-transform: uppercase; }
+        
+        .lista-pagos { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .pago-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .pago-item .fecha { font-weight: 600; color: #2d3748; font-size: 0.95rem; }
+        .pago-item .dias { color: #718096; font-size: 0.85rem; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -276,17 +214,54 @@
 
         <div class="divisor"></div>
 
-        <div class="futuros-titulo">Proyección de Sueldo a futuro</div>
+        <div class="futuros-titulo">Siguientes fechas de sueldo</div>
         <div class="lista-pagos" id="lista-futuros">
         </div>
 
     </div>
 
     <script>
-        const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-        const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+        // =========================================================
+        // ⚙️ PANEL DE CONTROL MANUAL (SOLO MODIFICA LAS FECHAS AQUÍ)
+        // =========================================================
+        // Utiliza el formato exacto de "Año-Mes-Día" (Ej: "2026-08-28")
+        
+        const FECHAS_MANUALES = {
+            // FECHAS DE NÓMINA MENSUAL
+            mensual_proximo: "2026-08-28", 
+            mensual_futuros: [
+                "2026-09-11", 
+                "2026-09-25", 
+                "2026-10-09", 
+                "2026-10-23"
+            ],
 
-        // Motor para calcular días faltantes
+            // FECHAS DE NÓMINA SEMANAL
+            semanal_proximo: "2026-08-27",
+            semanal_futuros: [
+                "2026-09-03", 
+                "2026-09-10", 
+                "2026-09-17", 
+                "2026-09-24"
+            ],
+
+            // FECHAS DE BONOS
+            tebca_proxima: "2026-08-27",
+            utilidades: "2026-11-21"
+        };
+        // =========================================================
+
+
+        // --- LÓGICA INTERNA DE LA PÁGINA (No tocar) ---
+        const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+        // Procesar fecha estricta sin importar zona horaria
+        function crearFechaLocal(fechaString) {
+            return new Date(fechaString + 'T00:00:00');
+        }
+
+        // Calcular días faltantes reales
         function calcularDiasFaltantes(fechaObjetivo) {
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
@@ -296,24 +271,16 @@
             return Math.ceil(diferencia / (1000 * 3600 * 24));
         }
 
-        // --- EL NUEVO MOTOR: Ajusta los fines de semana al viernes ---
-        function diaHabilBancario(fecha) {
-            let fechaAjustada = new Date(fecha);
-            if (fechaAjustada.getDay() === 6) {
-                // Si es Sábado, resta 1 día (Viernes)
-                fechaAjustada.setDate(fechaAjustada.getDate() - 1);
-            } else if (fechaAjustada.getDay() === 0) {
-                // Si es Domingo, resta 2 días (Viernes)
-                fechaAjustada.setDate(fechaAjustada.getDate() - 2);
-            }
-            return fechaAjustada;
-        }
-
         function formatoBadge(dias, esUtilidad = false) {
+            if (dias < 0) return "✅ Pagado";
             if (dias === 0) return "💸 HOY";
             if (dias === 1) return "⏳ Mañana";
             if (esUtilidad && dias > 30) return `~${(dias / 30).toFixed(1)} meses`;
             return `${dias} días`;
+        }
+
+        function renderizarFechaStr(objFecha) {
+            return `${diasSemana[objFecha.getDay()]}, ${objFecha.getDate()} ${meses[objFecha.getMonth()]}`;
         }
 
         function cambiarNomina(tipo) {
@@ -321,103 +288,39 @@
             document.getElementById('btn-semanal').classList.remove('active');
             document.getElementById(`btn-${tipo}`).classList.add('active');
 
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0); // Normalizar hora para comparaciones exactas
+            // 1. Sueldo Principal
+            let fechaSueldo = tipo === 'mensual' ? crearFechaLocal(FECHAS_MANUALES.mensual_proximo) : crearFechaLocal(FECHAS_MANUALES.semanal_proximo);
+            let dfSueldo = calcularDiasFaltantes(fechaSueldo);
             
-            // --- 1. CALCULAR SUELDO ---
-            let proximoSueldo = new Date();
-            if (tipo === 'mensual') {
-                const anio = hoy.getFullYear();
-                const mes = hoy.getMonth();
-                
-                // Calculamos las fechas crudas
-                let fechaQuincena = new Date(anio, mes, 15);
-                let fechaFinMes = new Date(anio, mes + 1, 0); // Último día del mes
-                let fechaProxQuincena = new Date(anio, mes + 1, 15);
-                
-                // Las ajustamos a días hábiles bancarios
-                fechaQuincena = diaHabilBancario(fechaQuincena);
-                fechaFinMes = diaHabilBancario(fechaFinMes);
-                fechaProxQuincena = diaHabilBancario(fechaProxQuincena);
-                
-                // Evaluamos cuál es el pago que viene
-                if (hoy <= fechaQuincena) {
-                    proximoSueldo = fechaQuincena;
-                } else if (hoy <= fechaFinMes) {
-                    proximoSueldo = fechaFinMes;
-                } else {
-                    proximoSueldo = fechaProxQuincena;
-                }
-            } else {
-                // Nómina semanal (Jueves). No suele requerir ajuste de fin de semana, pero igual se evalúa.
-                const diaSemana = hoy.getDay();
-                let dif = (4 - diaSemana + 7) % 7;
-                // Si ya pasó el cierre del jueves en la noche, proyecta el siguiente
-                if (dif === 0 && new Date().getHours() > 18) dif = 7;
-                proximoSueldo.setDate(hoy.getDate() + dif);
-            }
-
-            const dfSueldo = calcularDiasFaltantes(proximoSueldo);
-            document.getElementById('sueldo-fecha').innerText = `${dias[proximoSueldo.getDay()]}, ${proximoSueldo.getDate()} ${meses[proximoSueldo.getMonth()]}`;
+            document.getElementById('sueldo-fecha').innerText = renderizarFechaStr(fechaSueldo);
             document.getElementById('sueldo-badge').innerText = formatoBadge(dfSueldo);
-            document.getElementById('sueldo-badge').className = dfSueldo === 0 ? "dash-badge bg-green" : "dash-badge bg-blue";
+            document.getElementById('sueldo-badge').className = dfSueldo <= 0 ? "dash-badge bg-green" : "dash-badge bg-blue";
 
-            // --- 2. CALCULAR TEBCA (Siempre Jueves) ---
-            let proximaTebca = new Date();
-            let difTebca = (4 - hoy.getDay() + 7) % 7;
-            if (difTebca === 0 && new Date().getHours() > 18) difTebca = 7;
-            proximaTebca.setDate(hoy.getDate() + difTebca);
+            // 2. Tebca (Fija para todos)
+            let fechaTebca = crearFechaLocal(FECHAS_MANUALES.tebca_proxima);
+            let dfTebca = calcularDiasFaltantes(fechaTebca);
             
-            const dfTebca = calcularDiasFaltantes(proximaTebca);
-            document.getElementById('tebca-fecha').innerText = `Jueves, ${proximaTebca.getDate()} ${meses[proximaTebca.getMonth()]}`;
+            document.getElementById('tebca-fecha').innerText = renderizarFechaStr(fechaTebca);
             document.getElementById('tebca-badge').innerText = formatoBadge(dfTebca);
-            document.getElementById('tebca-badge').className = dfTebca === 0 ? "dash-badge bg-green" : (tipo==='mensual' ? "dash-badge bg-green" : "dash-badge bg-blue"); 
+            document.getElementById('tebca-badge').className = dfTebca <= 0 ? "dash-badge bg-green" : "dash-badge bg-blue";
 
-            // --- 3. CALCULAR UTILIDADES (15 de Noviembre) ---
-            let proximasUtilidadesC = new Date(hoy.getFullYear(), 10, 15); // Noviembre es mes 10
-            let utilidadesAjustadas = diaHabilBancario(proximasUtilidadesC);
+            // 3. Utilidades (Fijas)
+            let fechaUtil = crearFechaLocal(FECHAS_MANUALES.utilidades);
+            let dfUtil = calcularDiasFaltantes(fechaUtil);
             
-            if (hoy > utilidadesAjustadas) {
-                proximasUtilidadesC = new Date(hoy.getFullYear() + 1, 10, 15);
-                utilidadesAjustadas = diaHabilBancario(proximasUtilidadesC);
-            }
-            const dfUtil = calcularDiasFaltantes(utilidadesAjustadas);
-            document.getElementById('utilidades-fecha').innerText = `${utilidadesAjustadas.getDate()} Nov ${utilidadesAjustadas.getFullYear()}`;
+            document.getElementById('utilidades-fecha').innerText = `${fechaUtil.getDate()} Nov ${fechaUtil.getFullYear()}`;
             document.getElementById('utilidades-badge').innerText = formatoBadge(dfUtil, true);
 
-            // --- 4. PROYECCIÓN DE SUELDOS FUTUROS (Siguientes 4) ---
-            let futurosPagos = [];
-            let fechaIter = new Date(proximoSueldo);
-
-            for (let i = 0; i < 4; i++) {
-                if (tipo === 'semanal') {
-                    fechaIter.setDate(fechaIter.getDate() + 7);
-                    futurosPagos.push(new Date(fechaIter));
-                } else {
-                    let d = fechaIter.getDate();
-                    let m = fechaIter.getMonth();
-                    let a = fechaIter.getFullYear();
-                    let sigPagoC;
-                    
-                    if (d <= 15) {
-                        // Si estábamos en la quincena, el próximo es el fin de mes
-                        sigPagoC = new Date(a, m + 1, 0); 
-                    } else {
-                        // Si estábamos a fin de mes, el próximo es la quincena del mes siguiente
-                        sigPagoC = new Date(a, m + 1, 15);
-                    }
-                    fechaIter = diaHabilBancario(sigPagoC);
-                    futurosPagos.push(new Date(fechaIter));
-                }
-            }
-
+            // 4. Lista de Futuros
+            let arrayFuturos = tipo === 'mensual' ? FECHAS_MANUALES.mensual_futuros : FECHAS_MANUALES.semanal_futuros;
             let htmlFuturos = '';
-            futurosPagos.forEach(pago => {
-                const df = calcularDiasFaltantes(pago);
-                const txt = `${dias[pago.getDay()]}, ${pago.getDate()} ${meses[pago.getMonth()]}`;
+            
+            arrayFuturos.forEach(fechaStr => {
+                let pago = crearFechaLocal(fechaStr);
+                let df = calcularDiasFaltantes(pago);
                 htmlFuturos += `
                     <div class="pago-item">
-                        <span class="fecha">📅 ${txt}</span>
+                        <span class="fecha">📅 ${renderizarFechaStr(pago)}</span>
                         <span class="dias">En ${df} días</span>
                     </div>
                 `;
@@ -426,7 +329,6 @@
         }
 
         window.onload = () => cambiarNomina('mensual');
-
     </script>
 </body>
 </html>
